@@ -16,10 +16,25 @@
 
 #define MEMORY_SIZE 4096
 
-#define CLK_DELAY 100
+#define CLK_DELAY 50
+
+void font_red()
+{
+    printf("\033[31m");
+}
+
+void font_green()
+{
+    printf("\033[32m");
+}
+
+void font_reset()
+{
+    printf("\033[0m");
+}
 
 // Memory
-static uint8_t memory[MEMORY_SIZE] = {0x21, 0x00, 0x04, 0x3e, 0x10, 0x77, 0x7e, 0xc6, 0x05, 0x77, 0xc3, 0x06, 0x00};
+static uint8_t memory[MEMORY_SIZE] = {0xed, 0x38, 0x1f, 0x3e, 0x80, 0xed, 0x39, 0x1f, 0xc3, 0x00, 0x00};
 
 void cycle(int delay)
 {
@@ -64,6 +79,7 @@ int main()
     uint16_t addr_bus = 0;
     uint8_t data_bus = 0;
     bool mreq = 0;
+    bool ioreq = 0;
     bool rd = 0;
     bool wr = 0;
     uint32_t cycle = 1;
@@ -80,10 +96,9 @@ int main()
         addr_bus = io_pins & ADDR_BUS_MASK;
         data_bus = (io_pins & DATA_BUS_MASK) >> ADDR_WIDTH;
         mreq = gpio_get(MREQ_PIN);
+        ioreq = gpio_get(IORQ_PIN);
         rd = gpio_get(RD_PIN);
         wr = gpio_get(WR_PIN);
-
-        sleep_ms(2);
 
         if (!mreq)
         {
@@ -105,8 +120,24 @@ int main()
         {
             gpio_set_dir_in_masked(DATA_BUS_MASK);
         }
+        
+        if (!ioreq)
+        {
+            if (!rd)
+            {
+                font_red();
+                printf("Read IO: %02X from %04X\r\n", data_bus, addr_bus);
+                font_reset();
+            }
+            if (!wr)
+            {
+                font_green();
+                printf("Write IO: %02X to %04X\r\n", data_bus, addr_bus);
+                font_reset();
+            }
+        }
 
-        printf("%u | ADDR: %04X | DATA: %02X | MREQ: %d | RD: %d | WR: %d\r\n", cycle, addr_bus, data_bus, mreq, rd, wr);
+        printf("%u | ADDR: %04X | DATA: %02X | MREQ: %d | IOREQ: %d | RD: %d | WR: %d\r\n", cycle, addr_bus, data_bus, mreq, ioreq, rd, wr);
 
         gpio_put(EXTAL_PIN, false);
         sleep_ms(CLK_DELAY);
