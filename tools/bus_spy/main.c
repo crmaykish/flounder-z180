@@ -19,7 +19,7 @@
 #define CLK_DELAY 100
 
 // Memory
-static uint8_t rom[MEMORY_SIZE] = {0x3e, 0xaa, 0x3c, 0x3c, 0x3c, 0xc3};
+static uint8_t memory[MEMORY_SIZE] = {0x21, 0x00, 0x04, 0x3e, 0x10, 0x77, 0x7e, 0xc6, 0x05, 0x77, 0xc3, 0x06, 0x00};
 
 void cycle(int delay)
 {
@@ -85,12 +85,21 @@ int main()
 
         sleep_ms(2);
 
-        if (!mreq && !rd)
+        if (!mreq)
         {
-            gpio_set_dir_out_masked(DATA_BUS_MASK);
-            gpio_put_masked(DATA_BUS_MASK, (rom[addr_bus] << ADDR_WIDTH));
+            if (!rd)
+            {
+                gpio_set_dir_out_masked(DATA_BUS_MASK);
+                gpio_put_masked(DATA_BUS_MASK, (memory[addr_bus] << ADDR_WIDTH));
 
-            printf("READ: %02X\r\n", rom[addr_bus]);
+                printf("RD: %02X from %04X\r\n", memory[addr_bus], addr_bus);
+            }
+            if (!wr)
+            {
+                memory[addr_bus] = data_bus;
+
+                printf("WR: %02X to %04X\r\n", data_bus, addr_bus);
+            }
         }
         else
         {
