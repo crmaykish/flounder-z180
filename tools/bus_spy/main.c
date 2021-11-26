@@ -2,6 +2,9 @@
 #include "pico/stdlib.h"
 #include <stdint.h>
 
+// #define CLOCK_CONTROL_ON
+// #define CONSOLE_LOGS_ON
+
 #define ADDR_BUS_MASK 0x0FFF
 #define DATA_BUS_MASK 0xFF000
 
@@ -62,6 +65,8 @@ int main()
 
     // Reset the Z180
     gpio_put(RESET_PIN, false);
+
+#ifdef CLOCK_CONTROL_ON
     cycle(CLK_DELAY);
     cycle(CLK_DELAY);
     cycle(CLK_DELAY);
@@ -72,6 +77,10 @@ int main()
     cycle(CLK_DELAY);
     cycle(CLK_DELAY);
     cycle(CLK_DELAY);
+#else
+    sleep_ms(250);
+#endif
+
     gpio_put(RESET_PIN, true);
 
     sleep_ms(CLK_DELAY);
@@ -82,14 +91,15 @@ int main()
     bool ioreq = 0;
     bool rd = 0;
     bool wr = 0;
-    uint32_t cycle = 1;
 
     uint32_t io_pins;
 
     while (true)
     {
+#ifdef CLOCK_CONTROL_ON
         gpio_put(EXTAL_PIN, true);
         sleep_ms(CLK_DELAY);
+#endif
 
         io_pins = gpio_get_all();
 
@@ -107,20 +117,25 @@ int main()
                 gpio_set_dir_out_masked(DATA_BUS_MASK);
                 gpio_put_masked(DATA_BUS_MASK, (memory[addr_bus] << ADDR_WIDTH));
 
+#ifdef CONSOLE_LOGS_ON
                 printf("RD: %02X from %04X\r\n", memory[addr_bus], addr_bus);
+#endif
             }
             if (!wr)
             {
                 memory[addr_bus] = data_bus;
 
+#ifdef CONSOLE_LOGS_ON
                 printf("WR: %02X to %04X\r\n", data_bus, addr_bus);
+#endif
             }
         }
         else
         {
             gpio_set_dir_in_masked(DATA_BUS_MASK);
         }
-        
+
+#ifdef CONSOLE_LOGS_ON
         if (!ioreq)
         {
             if (!rd)
@@ -136,13 +151,16 @@ int main()
                 font_reset();
             }
         }
+#endif
 
-        printf("%u | ADDR: %04X | DATA: %02X | MREQ: %d | IOREQ: %d | RD: %d | WR: %d\r\n", cycle, addr_bus, data_bus, mreq, ioreq, rd, wr);
+#ifdef CONSOLE_LOGS_ON
+        printf("ADDR: %04X | DATA: %02X | MREQ: %d | IOREQ: %d | RD: %d | WR: %d\r\n", addr_bus, data_bus, mreq, ioreq, rd, wr);
+#endif
 
+#ifdef CLOCK_CONTROL_ON
         gpio_put(EXTAL_PIN, false);
         sleep_ms(CLK_DELAY);
-
-        cycle++;
+#endif
     }
 
     return 0;
