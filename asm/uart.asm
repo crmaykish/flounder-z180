@@ -10,9 +10,17 @@ TSR0: equ $08       ; ASCI Receive Data Register Channel 0
 TSR1: equ $09       ; ASCI Receive Data Register Channel 1
 CCR: equ $1F        ; CPU Control Register
 
-    ; Baudrate is 5760 with dafault clock settings
+
+    ; TODO: this is kind of working, need to use a standard baudrate and probably a real EEPROM/RAM to eliminate variables
+
+
+    ; Baudrate is 5760 with default clock settings
+
+    org $0000
 
     di
+
+    ld sp, $0300
 
     ld a, 0b00000000
     out0 (CNTLB1), a
@@ -21,14 +29,16 @@ CCR: equ $1F        ; CPU Control Register
     ld a, 0b01100100
     out0 (CNTLA1), a
 
-UART_Reset:
-    ld b, '!'
-
-UART_Loop:
+; Send B to ASCI 1
+uart_putc:
     in0 a, (STAT1)
     and 0b00000010  ; Check TDRE bit, if 1, send byte, else keep waiting
-    jp z, UART_Loop
-
+    jp z, uart_putc
     out0 (TDR1), b
+    ret
 
-    jp UART_Loop
+init:
+    ld b, $46
+loop:
+    call uart_putc
+    jr loop
