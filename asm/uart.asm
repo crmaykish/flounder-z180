@@ -15,53 +15,41 @@ OMCR: equ $3E       ; Operation Mode Control Register
 
     org $0000
 
-    ; Clear operating mode, I think this is more Z80 like
-    ld a, $00
-    out0 (OMCR), a
+    ; Set stack pointer to top of RAM (4095)
+    ld sp, $0FFF
 
-    ; Set Wait states to 0
-    ld a, $00
-    out0 (DCNTL), a
+    ; Set PHI to EXTAL/1 (run the system at the rate of the clock source)
+    ld a, $80
+    out0 (CCR), a
 
-    ; Set ASCI to use external clock source
-    ld a, 0b00000111
+    ; Set ASCI 1 to use external clock source
+    ld a, %00000111
     out0 (CNTLB1), a
 
-    ; Clear ASCI extension register, sets external clock scaling to 1/16
-    ld a, $00
-    out0 (ASEXT1), a
-
-    ; Set Transmit and Receive Enable ON for ASCI 0, 8-bit, no parity, 1 stop bit
-    ld a, 0b01100100
+    ; Set Transmit and Receive Enable ON for ASCI 1, 8-bit, no parity, 1 stop bit
+    ld a, %01100100
     out0 (CNTLA1), a
 
-; TODO: system needs RAM before subroutines will work
-; ram emulation might work at lower speed
-
-newline:
-    in0 a, (STAT1)
-    bit 1, a  ; Check TDRE bit, if 1, send byte, else keep waiting
-    jp z, newline
-    ld a, $0A
-    out0 (TDR1), a
-return:
-    in0 a, (STAT1)
-    bit 1, a  ; Check TDRE bit, if 1, send byte, else keep waiting
-    jp z, return
-    ld a, $0D
-    out0 (TDR1), a
-
+restart:
+    ld b, $0A
+    call asci1_putc
+    ld b, $0D
+    call asci1_putc
     ld b, 'A'
 loop:
-    in0 a, (STAT1)
-    bit 1, a  ; Check TDRE bit, if 1, send byte, else keep waiting
-    jp z, loop
-
-    ld a, b
-    out0 (TDR1), a
+    call asci1_putc
     inc b
     ld a, b
     cp 'Z'+1
-    jp z, newline
-
+    jp z, restart
     jp loop
+
+; Send B to ASCI 1
+asci1_putc:
+    in0 a, (STAT1)
+    bit 1, a  ; Check TDRE bit, if 1, send byte, else keep waiting
+    jp z, asci1_putc
+
+    ld a, b
+    out0 (TDR1), a
+    ret
