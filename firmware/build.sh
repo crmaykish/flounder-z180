@@ -1,1 +1,1 @@
-zcc +z180 -startup=-1 -vn -SO3 -clib=new -o primes.bin primes.c asci.asm
+zcc +z180 -startup=-1 -vn -SO3 -clib=new -o primes.bin asci.asm flounder.c primes.c 

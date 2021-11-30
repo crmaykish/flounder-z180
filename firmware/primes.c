@@ -1,30 +1,5 @@
 #include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include "asci.h"
-
-#define SYSTEM_NAME "| === Flounder Z180 === |"
-
-char decbuf[11] = {0};
-
-void print(char *s)
-{
-    char i = 0;
-    char c = s[i];
-
-    while (c != 0)
-    {
-        asci1_putc(c);
-        i++;
-        c = s[i];
-    }
-}
-
-void print_dec(uint32_t n)
-{
-    utoa((unsigned int)n, decbuf, 10);
-    print(decbuf);
-}
+#include "flounder.h"
 
 bool is_prime(uint32_t p)
 {
@@ -53,17 +28,11 @@ bool is_prime(uint32_t p)
     return true;
 }
 
-void newline()
-{
-    asci1_putc(0x0A);
-    asci1_putc(0x0D);
-}
-
 int main()
 {
-    uint16_t current = 2;
+    uint16_t count = 1;
 
-    asci1_init();
+    init_flounder();
 
     newline();
     print(SYSTEM_NAME);
@@ -71,12 +40,15 @@ int main()
 
     while (1)
     {
-        for (uint16_t i = 0; i < UINT16_MAX; i++)
+        for (uint16_t i = 1; i < UINT16_MAX; i++)
         {
             if (is_prime(i))
             {
+                print_dec(count);
+                print(": ");
                 print_dec(i);
                 newline();
+                count++;
             }
         }
     }
