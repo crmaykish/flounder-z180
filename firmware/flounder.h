@@ -6,11 +6,18 @@
 
 #define SYSTEM_NAME "Flounder Z180"
 
+// System
 void init_flounder();
+uint8_t peek(uint16_t addr);
+void poke(uint16_t addr, uint8_t val);
 
+// UART
+void putc(char);
 void print(char *);
 void print_dec(uint32_t);
 void print_hex(uint32_t);
 void newline();
+char getc();
+uint16_t readline(char *buffer, bool echo);
 
 #endif
