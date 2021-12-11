@@ -2,7 +2,7 @@ EXTERN _main
 
     org $0000
 
-    ld sp, $0FFF
+    ld sp, $FFFF
 
     ld a, $80
     out0 ($1F), a

@@ -1,0 +1,21 @@
+GAL16V8
+FLOUNDER
+
+NC PHI MREQ RD WR A18 A17 A16 A15 GND
+NC ROMEN RAMEN RAMWR ROMWR NC NC NC NC VCC
+
+ROMWR = VCC
+
+/ROMEN = /A18 * /A17 * /A16 * /A15 * /MREQ * /RD
+
+/RAMEN = /A18 * /A17 * /A16 * A15 * /MREQ
+
+/RAMWR = PHI * /WR
+
+DESCRIPTION
+Decodes Flounders ROM and RAM
+
+ROM at 0x0000 to 0x7FFF
+RAM at 0x8000 to 0xFFFF
+
+RAM banking not enabled currently
