@@ -3,3 +3,8 @@ build/
 .vscode/settings.json
 *.bin
 *.o
+*.chp
+*.fus
+*.pin
+*.pld
+*.jed
