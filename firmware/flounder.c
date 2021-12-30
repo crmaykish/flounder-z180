@@ -2,8 +2,6 @@
 #include "flounder.h"
 #include "asci.h"
 
-static char decbuf[11] = {0};
-
 void init_flounder()
 {
     asci1_init();
@@ -17,11 +15,6 @@ uint8_t peek(uint16_t addr)
 void poke(uint16_t addr, uint8_t val)
 {
     *(uint8_t *)(addr) = val;
-}
-
-void putc(char c)
-{
-    asci1_putc(c);
 }
 
 void print(char *s)
@@ -39,30 +32,29 @@ void print(char *s)
 
 void print_dec(uint32_t n)
 {
-    utoa((unsigned int)n, decbuf, 10);
-    print(decbuf);
+    char buffer[11] = {0};
+
+    utoa((unsigned int)n, buffer, 10);
+    print(buffer);
 }
 
 void print_hex(uint32_t n)
 {
+    char buffer[11] = {0};
+
     if (n < 0x10)
     {
-        putc('0');
+        asci1_putc('0');
     }
-    
-    utoa((unsigned int)n, decbuf, 16);
-    print(decbuf);
+
+    utoa((unsigned int)n, buffer, 16);
+    print(buffer);
 }
 
 void newline()
 {
     asci1_putc(0x0A);
     asci1_putc(0x0D);
-}
-
-char getc()
-{
-    return asci1_getc();
 }
 
 uint16_t readline(char *buffer, bool echo)
@@ -72,11 +64,11 @@ uint16_t readline(char *buffer, bool echo)
 
     while (in != 0x0A && in != 0x0D)
     {
-        in = getc();
+        in = asci1_getc();
 
         if (echo)
         {
-            putc(in);
+            asci1_putc(in);
         }
 
         buffer[i] = in;

@@ -13,7 +13,7 @@ void memdump(uint16_t start, uint16_t bytes)
     {
         b = peek(start + i);
         print_hex(b);
-        putc(' ');
+        print(" ");
 
         i++;
 
@@ -25,11 +25,11 @@ void memdump(uint16_t start, uint16_t bytes)
         }
         else if (i % 8 == 0)
         {
-            putc(' ');
+            print(" ");
         }
     }
 
-    putc('|');
+    print("|");
 }
 
 int main()
@@ -42,6 +42,8 @@ int main()
     print("** ");
     print(SYSTEM_NAME);
     print(" System Monitor **");
+    newline();
+
     newline();
 
     while (true)
