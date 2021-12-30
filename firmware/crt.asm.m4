@@ -4,6 +4,7 @@ EXTERN _main
 
     ld sp, $FFFF
 
+    ; Set clock divide to XTAL/1 (i.e. run at the full oscillator frequency)
     ld a, $80
     out0 ($1F), a
 
