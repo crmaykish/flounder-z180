@@ -2,22 +2,12 @@
 #include "flounder.h"
 #include "asci.h"
 
-void init_flounder()
+void flounder_init(void)
 {
     asci1_init();
 }
 
-uint8_t peek(uint16_t addr)
-{
-    return *(uint8_t *)addr;
-}
-
-void poke(uint16_t addr, uint8_t val)
-{
-    *(uint8_t *)(addr) = val;
-}
-
-void print(char *s)
+void uart_print(char *s)
 {
     char i = 0;
     char c = s[i];
@@ -30,15 +20,15 @@ void print(char *s)
     }
 }
 
-void print_dec(uint32_t n)
+void uart_print_dec(uint32_t n)
 {
     char buffer[11] = {0};
 
     utoa((unsigned int)n, buffer, 10);
-    print(buffer);
+    uart_print(buffer);
 }
 
-void print_hex(uint32_t n)
+void uart_print_hex(uint32_t n)
 {
     char buffer[11] = {0};
 
@@ -48,16 +38,10 @@ void print_hex(uint32_t n)
     }
 
     utoa((unsigned int)n, buffer, 16);
-    print(buffer);
+    uart_print(buffer);
 }
 
-void newline()
-{
-    asci1_putc(0x0A);
-    asci1_putc(0x0D);
-}
-
-uint16_t readline(char *buffer, bool echo)
+uint16_t uart_readline(char *buffer, bool echo)
 {
     char in = 0;
     uint16_t i = 0;
@@ -78,4 +62,20 @@ uint16_t readline(char *buffer, bool echo)
     buffer[i] = 0;
 
     return i;
+}
+
+char *parse_param(char *s, char delim, size_t n)
+{
+    uint16_t i = 0;
+    while (s[i] != delim && i < n)
+    {
+        i++;
+    }
+
+    if (i == (n - 1))
+    {
+        return 0;
+    }
+
+    return s + i + 1;
 }

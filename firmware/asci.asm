@@ -12,7 +12,7 @@ RDR1: equ $09       ; ASCI Receive Register Channel 1
 PUBLIC _asci1_init, _asci1_putc, _asci1_getc
 
 _asci1_init:
-    ; Set ASCI 1 to use external clock source
+    ; Set ASCI 1 to use external clock source, 115200 bps at 1.8432 MHz
     ld a, %00000111
     out0 (CNTLB1), a
 

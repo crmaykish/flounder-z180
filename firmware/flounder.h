@@ -6,16 +6,19 @@
 
 #define SYSTEM_NAME "Flounder Z180"
 
-// System
-void init_flounder();
-uint8_t peek(uint16_t addr);
-void poke(uint16_t addr, uint8_t val);
+// Memory
+#define MEM(address) (*(volatile unsigned char *)(address))
 
-// UART
-void print(char *);
-void print_dec(uint32_t);
-void print_hex(uint32_t);
-void newline();
-uint16_t readline(char *buffer, bool echo);
+// Hardware
+void flounder_init(void);
+
+// I/O Helpers
+void uart_print(char *);
+void uart_print_dec(uint32_t);
+void uart_print_hex(uint32_t);
+uint16_t uart_readline(char *buffer, bool echo);
+
+// Utilities
+char *parse_param(char *s, char delim, size_t n);
 
 #endif
