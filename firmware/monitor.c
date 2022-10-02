@@ -57,6 +57,41 @@ void memdump(uint16_t address, uint16_t bytes)
     uart_print("|");
 }
 
+void load(uint16_t addr)
+{
+    uint16_t in_count = 0;
+    uint8_t magic_count = 0;
+    uint8_t in = 0;
+
+    uart_print("Loading into 0x");
+    uart_print_hex(addr);
+    uart_print("...");
+
+    while (magic_count != 3)
+    {
+        in = asci1_getc();
+
+        MEM(addr + in_count) = in;
+
+        if (in == 0xDE)
+        {
+            magic_count++;
+        }
+        else
+        {
+            magic_count = 0;
+        }
+
+        in_count++;
+    }
+
+    // Remove the magic bytes from the end of the firmware in RAM
+    memset((uint16_t *)(addr + in_count - 3), 0, 3);
+
+    uart_print_dec(in_count - 3);
+    uart_print(" bytes read\r\nDone!");
+}
+
 int main()
 {
     char buffer[32] = {0};
@@ -74,7 +109,7 @@ int main()
     while (true)
     {
         uart_print("\r\n> ");
-        
+
         memset(buffer, 0, sizeof(buffer));
 
         uart_readline(buffer, true);
@@ -92,6 +127,19 @@ int main()
 
             uint16_t addr = (uint16_t)strtoul(param, 0, 16);
             memdump(addr, 256);
+        }
+        else if (strncmp(buffer, "load", 4) == 0)
+        {
+            char *param = parse_param(buffer, ' ', sizeof(buffer));
+
+            if (param == NULL)
+            {
+                break;
+            }
+
+            uint16_t addr = (uint16_t)strtoul(param, 0, 16);
+
+            load(addr);
         }
         else
         {

@@ -1,10 +1,2 @@
-build/
-.vscode/c_cpp_properties.json
-.vscode/settings.json
 *.bin
 *.o
-*.chp
-*.fus
-*.pin
-*.pld
-*.jed
