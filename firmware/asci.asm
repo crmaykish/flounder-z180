@@ -9,7 +9,7 @@ TDR1: equ $07       ; ASCI Transmit Data Register Channel 1
 RDR0: equ $08       ; ASCI Receive Register Channel 0
 RDR1: equ $09       ; ASCI Receive Register Channel 1
 
-PUBLIC _asci1_init, _asci1_putc, _asci1_getc
+PUBLIC _asci1_init, _asci1_putc, _asci1_getc, _cpld_read
 
 _asci1_init:
     ; Set ASCI 1 to use external clock source, 115200 bps at 1.8432 MHz
@@ -46,4 +46,11 @@ _asci1_getc:
 
     in0 l, (RDR1)
 
+    ret
+
+_cpld_read:
+
+    ld hl, $C000
+    ld a, (hl)
+    ld l, a
     ret

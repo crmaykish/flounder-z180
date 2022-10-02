@@ -5,4 +5,6 @@ extern void asci1_init();
 extern void asci1_putc(char);
 extern char asci1_getc();
 
+extern unsigned char cpld_read();
+
 #endif

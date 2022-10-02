@@ -141,6 +141,12 @@ int main()
 
             load(addr);
         }
+        else if (strncmp(buffer, "cpld", 4) == 0)
+        {
+            uint8_t a = cpld_read();
+
+            uart_print_hex(a);
+        }
         else
         {
             uart_print("Command not implemented: ");

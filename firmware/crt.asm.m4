@@ -2,7 +2,7 @@ EXTERN _main
 
     org $0000
 
-    ld sp, $FFFF
+    ld sp, $BFFF
 
     ; Set clock divide to XTAL/1 (i.e. run at the full oscillator frequency)
     ; CCR register
