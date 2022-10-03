@@ -143,9 +143,12 @@ int main()
         }
         else if (strncmp(buffer, "cpld", 4) == 0)
         {
-            uint8_t a = cpld_read();
-
-            uart_print_hex(a);
+            while (true)
+            {
+                uint8_t a = cpld_read();
+                uart_print_hex(a);
+                uart_print("\r\n");
+            }
         }
         else
         {
