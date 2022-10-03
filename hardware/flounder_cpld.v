@@ -7,8 +7,8 @@ module flounder_cpld(
     input W,
     input [19:13] A,
     // input [1:0] AL,
-    // input KB_CLK,
-    // input KB_DATA,
+    input KB_CLK,
+    input KB_DATA,
     output [7:0] D, // TODO: Data bus might need to be inout eventually
     output ROMEN,
     output RAMEN,
@@ -26,7 +26,61 @@ assign CPLDEN = ~A[19] * ~A[18] * ~A[17] * ~A[16] * A[15] * A[14] * ~MREQ * ~R;
 
 assign RAMWR = W;
 
-// If keyboard enabled (I/O 0x8000), output value to data bus
-assign D = (CPLDEN) ? 8'b11110000 : 8'bZ;
+// PS/2 keyboard handler
+
+reg [3:0] kb_index = 0;
+reg [7:0] kb_val = 0;
+
+reg [7:0] temp_val = 0;
+
+reg kb_clk_read = 0;
+
+always @(posedge CLK) begin
+    if (~RST) begin
+        kb_index <= 0;
+        kb_val <= 0;
+        temp_val <= 0;
+    end
+    else begin
+        // PS/2 state machine
+
+        if (~KB_CLK) begin
+            // PS/2 clock line is active-low
+
+            if (~kb_clk_read) begin
+                // Shift in PS/2 data bit
+
+                case (kb_index)
+                    0:;     // start bit
+                    1: temp_val[0] <= KB_DATA;
+                    2: temp_val[1] <= KB_DATA;
+                    3: temp_val[2] <= KB_DATA;
+                    4: temp_val[3] <= KB_DATA;
+                    5: temp_val[4] <= KB_DATA;
+                    6: temp_val[5] <= KB_DATA;
+                    7: temp_val[6] <= KB_DATA;
+                    8: temp_val[7] <= KB_DATA;
+                    9:;     // stop bit
+                    10: kb_val <= temp_val;    // parity bit    // TODO: this extra latching might not be necessary
+                endcase
+
+                if (kb_index < 10)
+                    kb_index <= kb_index + 1;
+                else
+                    kb_index <= 0;
+
+                kb_clk_read <= 1;
+            end
+        end
+        else begin
+            // PS/2 clock line is inactive-high
+            kb_clk_read <= 0;
+        end
+
+    end
+end
+
+// If the CPLD is selected on the address bus, output the last keyboard value on the data bus, else high-impedance
+assign D = (CPLDEN) ? kb_val : 8'bZ;
 
 endmodule
