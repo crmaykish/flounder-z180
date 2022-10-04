@@ -2,6 +2,7 @@
 #include <string.h>
 #include "flounder.h"
 #include "asci.h"
+#include "ps2.h"
 
 void print_binary_string(char *str, uint8_t max)
 {
@@ -143,11 +144,18 @@ int main()
         }
         else if (strncmp(buffer, "cpld", 4) == 0)
         {
+            char last_char = 0;
+
+            uart_print("\r\n");
             while (true)
             {
-                uint8_t a = cpld_read();
-                uart_print_hex(a);
-                uart_print("\r\n");
+                char a = ps2_get_char();
+
+                if ((a != 0) && (a != last_char) && a != '*')
+                {
+                    last_char = a;
+                    asci1_putc(a);
+                }
             }
         }
         else
