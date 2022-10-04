@@ -12,7 +12,9 @@ module flounder_cpld(
     output [7:0] D, // TODO: Data bus might need to be inout eventually
     output ROMEN,
     output RAMEN,
-    output RAMWR
+    output RAMWR,
+    output reg U0,
+    output reg U1
 );
 
 // 32 KB at 0x0000
@@ -40,6 +42,8 @@ always @(posedge CLK) begin
         kb_index <= 0;
         kb_val <= 0;
         temp_val <= 0;
+		  U0 <= 0;
+		  U1 <= 0;
     end
     else begin
         // PS/2 state machine
@@ -51,7 +55,9 @@ always @(posedge CLK) begin
                 // Shift in PS/2 data bit
 
                 case (kb_index)
-                    0:;     // start bit
+                    0: begin
+                        U0 <= 1;
+                    end
                     1: temp_val[0] <= KB_DATA;
                     2: temp_val[1] <= KB_DATA;
                     3: temp_val[2] <= KB_DATA;
@@ -60,7 +66,9 @@ always @(posedge CLK) begin
                     6: temp_val[5] <= KB_DATA;
                     7: temp_val[6] <= KB_DATA;
                     8: temp_val[7] <= KB_DATA;
-                    9:;     // stop bit
+                    9: begin
+                        U0 <= 0;
+                    end
                     10: kb_val <= temp_val;    // parity bit    // TODO: this extra latching might not be necessary
                 endcase
 
