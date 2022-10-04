@@ -32,10 +32,9 @@ assign RAMWR = W;
 
 reg [3:0] kb_index = 0;
 reg [7:0] kb_val = 0;
-
 reg [7:0] temp_val = 0;
-
 reg kb_clk_read = 0;
+reg [3:0] sample_delay = 0;
 
 always @(posedge CLK) begin
     if (~RST) begin
@@ -51,38 +50,44 @@ always @(posedge CLK) begin
         if (~KB_CLK) begin
             // PS/2 clock line is active-low
 
-            if (~kb_clk_read) begin
-                // Shift in PS/2 data bit
+            if (~kb_clk_read)
+                sample_delay <= sample_delay + 1;
 
+            // When the PS/2 clock line goes low, wait 8 CPU cycles and then sample the data line
+
+            if (sample_delay == 8) begin
                 case (kb_index)
-                    0: begin
-                        U0 <= 1;
-                    end
-                    1: temp_val[0] <= KB_DATA;
-                    2: temp_val[1] <= KB_DATA;
-                    3: temp_val[2] <= KB_DATA;
-                    4: temp_val[3] <= KB_DATA;
-                    5: temp_val[4] <= KB_DATA;
-                    6: temp_val[5] <= KB_DATA;
-                    7: temp_val[6] <= KB_DATA;
-                    8: temp_val[7] <= KB_DATA;
-                    9: begin
-                        U0 <= 0;
-                    end
-                    10: kb_val <= temp_val;    // parity bit    // TODO: this extra latching might not be necessary
-                endcase
+                        0:begin
+                            // Stop bit
+                            U0 <= 1;    // LED goes high when a scan code starts
+                        end
+                        1: temp_val[0] <= KB_DATA;
+                        2: temp_val[1] <= KB_DATA;
+                        3: temp_val[2] <= KB_DATA;
+                        4: temp_val[3] <= KB_DATA;
+                        5: temp_val[4] <= KB_DATA;
+                        6: temp_val[5] <= KB_DATA;
+                        7: temp_val[6] <= KB_DATA;
+                        8: temp_val[7] <= KB_DATA;
+                        9: begin
+                            // Stop bit
+                            U0 <= 0;    // LED goes low when the scan code is completely read
+                        end
+                        10: kb_val <= temp_val;    // Parity bit, latch the complete scan code into the storage register
+                    endcase
 
-                if (kb_index < 10)
-                    kb_index <= kb_index + 1;
-                else
-                    kb_index <= 0;
+                    if (kb_index < 10)
+                        kb_index <= kb_index + 1;
+                    else
+                        kb_index <= 0;
 
-                kb_clk_read <= 1;
+                    kb_clk_read <= 1;
             end
         end
         else begin
             // PS/2 clock line is inactive-high
             kb_clk_read <= 0;
+            sample_delay <= 0;
         end
 
     end

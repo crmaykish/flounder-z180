@@ -146,15 +146,28 @@ int main()
         {
             char last_char = 0;
 
-            uart_print("\r\n");
+            uart_print("PS/2 keyboard test\r\n");
+
             while (true)
             {
                 char a = ps2_get_char();
 
-                if ((a != 0) && (a != last_char) && a != '*')
+                if (a == '*')
                 {
+                    last_char = 0;
+                }
+                else if ((a != 0) && (a != last_char))
+                {
+                    if (last_char != 0)
+                    {
+                        asci1_putc(a);
+                        if (a == '\r')
+                        {
+                            asci1_putc('\n');
+                        }
+                    }
+
                     last_char = a;
-                    asci1_putc(a);
                 }
             }
         }
