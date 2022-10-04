@@ -12,7 +12,6 @@ module flounder_cpld(
     output [7:0] D, // TODO: Data bus might need to be inout eventually
     output ROMEN,
     output RAMEN,
-    output RAMWR,
     output reg U0,
     output reg U1
 );
@@ -25,8 +24,6 @@ assign RAMEN = ~(~A[19] * ~A[18] * ~A[17] * ~A[16] * A[15] * ~A[14] * ~MREQ);
 
 // active high, 0xC000
 assign CPLDEN = ~A[19] * ~A[18] * ~A[17] * ~A[16] * A[15] * A[14] * ~MREQ * ~R;
-
-assign RAMWR = W;
 
 // PS/2 keyboard handler
 
