@@ -24,16 +24,11 @@ assign ROMEN = ~(~A[19] * ~A[18] * ~A[17] * ~A[16] * ~A[15] * ~MREQ * ~R);
 // 32 KB SRAM at 0x8000
 assign RAMEN = ~(~A[19] * ~A[18] * ~A[17] * ~A[16] * A[15] * ~MREQ);
 
-// TODO: some conflict or bad logic with the PIO enable
-// Seems like it's being selected when it shouldn't be
-// Could be out0/out?
-// Is IOREQ actually used as a check internally to the PIO?
-
 // I/O 0x80, active low
 assign PIOEN = ~(A7 * ~A6 * ~IOREQ);
 
 // I/O 0xC0, active high
-assign CPLDEN = A7 * A6 * ~IOREQ;
+assign CPLDEN = (A7 * A6 * ~IOREQ & ~R);
 
 // PS/2 keyboard handler
 

@@ -7,12 +7,12 @@ PUBLIC _pio_init, _pio_setb
 
 _pio_init:
     ld a, %00001111
-    out (PORTB_CMD), a  ; Set port B to output mode
+    out0 (PORTB_CMD), a  ; Set port B to output mode
     ret
 
 _pio_setb:
     ld hl, 2
     add hl, sp
     ld a, (hl)
-    out (PORTB_DATA), a
+    out0 (PORTB_DATA), a
     ret
