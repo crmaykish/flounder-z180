@@ -1,4 +1,5 @@
 #include "ps2.h"
+#include "cpld.h"
 
 void ps2_init()
 {
