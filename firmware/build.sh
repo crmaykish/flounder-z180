@@ -7,6 +7,6 @@ fi
 
 echo "Building ${1}.bin..."
 
-zcc +z180 -startup=-1 -vn -SO3 -clib=new -o ${1}.bin asci.asm flounder.c ps2.c ${1}.c
+zcc +z180 -startup=-1 -vn -SO3 -clib=new -o ${1}.bin asci.asm flounder.c ps2.c pio.asm ${1}.c
 
 echo "Done!"

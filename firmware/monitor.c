@@ -3,6 +3,7 @@
 #include "flounder.h"
 #include "asci.h"
 #include "ps2.h"
+#include "pio.h"
 
 void print_binary_string(char *str, uint8_t max)
 {
@@ -169,6 +170,18 @@ int main()
 
                     last_char = a;
                 }
+            }
+        }
+        else if (strncmp(buffer, "pio", 3) == 0)
+        {
+            pio_init();
+
+            unsigned char a = 0;
+
+            while (true)
+            {
+                pio_setb(a);
+                a++;
             }
         }
         else
