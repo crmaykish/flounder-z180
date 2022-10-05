@@ -1,7 +1,5 @@
 #include "ps2.h"
 
-extern unsigned char cpld_read();
-
 void ps2_init()
 {
 }

@@ -7,6 +7,7 @@ module flounder_cpld(
     input W,
     input [19:13] A,
     input A7,
+    input A6,
     input KB_CLK,
     input KB_DATA,
     output [7:0] D, // TODO: Data bus might need to be inout eventually
@@ -17,16 +18,22 @@ module flounder_cpld(
     output reg U1
 );
 
-// 32 KB at 0x0000
+// 32 KB ROM at 0x0000
 assign ROMEN = ~(~A[19] * ~A[18] * ~A[17] * ~A[16] * ~A[15] * ~MREQ * ~R);
 
-// 16 KB at 0x8000
-assign RAMEN = ~(~A[19] * ~A[18] * ~A[17] * ~A[16] * A[15] * ~A[14] * ~MREQ);
+// 32 KB SRAM at 0x8000
+assign RAMEN = ~(~A[19] * ~A[18] * ~A[17] * ~A[16] * A[15] * ~MREQ);
 
-// active high, 0xC000
-assign CPLDEN = ~A[19] * ~A[18] * ~A[17] * ~A[16] * A[15] * A[14] * ~MREQ * ~R;
+// TODO: some conflict or bad logic with the PIO enable
+// Seems like it's being selected when it shouldn't be
+// Could be out0/out?
+// Is IOREQ actually used as a check internally to the PIO?
 
-assign PIOEN = ~(A7);
+// I/O 0x80, active low
+assign PIOEN = ~(A7 * ~A6 * ~IOREQ);
+
+// I/O 0xC0, active high
+assign CPLDEN = A7 * A6 * ~IOREQ;
 
 // PS/2 keyboard handler
 
