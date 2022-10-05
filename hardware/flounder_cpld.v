@@ -24,11 +24,11 @@ assign ROMEN = ~(~A[19] * ~A[18] * ~A[17] * ~A[16] * ~A[15] * ~MREQ * ~R);
 // 32 KB SRAM at 0x8000
 assign RAMEN = ~(~A[19] * ~A[18] * ~A[17] * ~A[16] * A[15] * ~MREQ);
 
-// I/O 0x80, active low
-assign PIOEN = ~(A7 * ~A6 * ~IOREQ);
+// I/O 0x2000, active low
+assign PIOEN = ~(~A[15] * ~A[14] * A[13] * ~IOREQ);
 
-// I/O 0xC0, active high
-assign CPLDEN = (A7 * A6 * ~IOREQ & ~R);
+// I/O 0x4000, active low
+assign CPLDEN = ~(~A[15] * A[14] * ~A[13] * ~IOREQ);
 
 // PS/2 keyboard handler
 
@@ -96,6 +96,6 @@ always @(posedge CLK) begin
 end
 
 // If the CPLD is selected on the address bus, output the last keyboard value on the data bus, else high-impedance
-assign D = (CPLDEN) ? kb_val : 8'bZ;
+assign D = (~CPLDEN) ? kb_val : 8'bZ;
 
 endmodule
