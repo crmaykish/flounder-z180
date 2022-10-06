@@ -1,9 +1,5 @@
 #include "ps2.h"
-#include "cpld.h"
-
-void ps2_init()
-{
-}
+#include "flounder.h"
 
 char ps2_scan_code_to_ascii(unsigned char code)
 {

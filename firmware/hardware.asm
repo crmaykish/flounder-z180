@@ -1,3 +1,7 @@
+; =============================
+; ASCI
+; =============================
+
 CNTLA0: equ $00     ; ASCI Control Register A Channel 0
 CNTLA1: equ $01     ; ASCI Control Register A Channel 1
 CNTLB0: equ $02     ; ASCI Control Register B Channel 0
@@ -46,4 +50,48 @@ _asci1_getc:
 
     in0 l, (RDR1)
 
+    ret
+
+; =============================
+; Z80 PIO
+; =============================
+
+PIO_PREFIX: equ $20
+PORTA_DATA: equ $00
+PORTB_DATA: equ $01
+PORTA_CMD: equ $02
+PORTB_CMD: equ $03
+
+PUBLIC _pio_init, _pio_setb
+
+_pio_init:
+    ld b, PIO_PREFIX ; load PIO prefix into B
+    ld a, %00001111
+    ld c, PORTB_CMD
+    out (c), a  ; Set port B to output mode
+    ret
+
+_pio_setb:
+    ld hl, 2
+    add hl, sp
+    ld a, (hl)
+    ld b, PIO_PREFIX
+    ld c, PORTB_DATA
+    out (c), a
+    ret
+
+; =============================
+; CPLD
+; =============================
+
+CPLD_PREFIX: equ $40
+CPLD0: equ $00          ; First memory mapped CPLD register (I/O space)
+
+PUBLIC _cpld_read
+
+_cpld_read:
+    ld b, CPLD_PREFIX
+    ld c, CPLD0
+    in a, (c)
+    ld l, a
     ret

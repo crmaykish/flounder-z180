@@ -1,17 +1,26 @@
-EXTERN _main
+; =============================
+; CPU Control Registers
+; =============================
 
-    org $0000
+CCR: equ $1F
+DCNTL: equ $32
+OMCR: equ $3E
 
-    ld sp, $BFFF
+; =============================
+; Reset handler
+; =============================
 
-    ; Set clock divide to XTAL/1 (i.e. run at the full oscillator frequency)
-    ; CCR register
+    org $0000           ; Code starts at address 0
+    ld sp, $FFFF        ; Set stack pointer to top of RAM
+
     ld a, $80
-    out0 ($1F), a
+    out0 (CCR), a       ; Set clock divide to XTAL/1 (i.e. run at the full oscillator frequency)
 
-    ; Set 0 memory wait states and 1 I/O wait state
-    ; DCNTL register
     ld a, $0
-    out0 ($32), a
+    out0 (DCNTL), a     ; Set 0 memory wait states and 1 I/O wait state
+    
+    ld a, %00000000
+    out0 (OMCR), a      ; Set CPU mode to full Z80 compatibility
 
-    call _main
+EXTERN _main
+    call _main          ; Jump to C code main()

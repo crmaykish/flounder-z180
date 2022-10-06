@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "flounder.h"
-#include "asci.h"
 
 void flounder_init(void)
 {

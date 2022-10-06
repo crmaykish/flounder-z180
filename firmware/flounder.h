@@ -3,11 +3,24 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #define SYSTEM_NAME "Flounder Z180"
 
 // Memory
-#define MEM(address) (*(volatile unsigned char *)(address))
+#define MEM(address) (*(volatile uint8_t *)(address))
+
+// ASCI
+extern void asci1_init();
+extern void asci1_putc(char);
+extern char asci1_getc();
+
+// CPLD
+extern uint8_t cpld_read();
+
+// PIO
+extern void pio_init();
+extern void pio_setb(uint8_t val);
 
 // Hardware
 void flounder_init(void);

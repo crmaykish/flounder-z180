@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "flounder.h"
-#include "asci.h"
 #include "ps2.h"
-#include "pio.h"
 
 void print_binary_string(char *str, uint8_t max)
 {
@@ -104,7 +102,6 @@ int main()
     uart_print("** ");
     uart_print(SYSTEM_NAME);
     uart_print(" System Monitor **");
-    uart_print("\r\n");
 
     while (true)
     {
