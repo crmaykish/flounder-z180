@@ -1,3 +1,4 @@
+#include <z180.h>
 #include "ps2.h"
 #include "flounder.h"
 
@@ -133,6 +134,6 @@ char ps2_scan_code_to_ascii(unsigned char code)
 
 char ps2_get_char()
 {
-    char a = cpld_read();
+    char a = z180_inp(CPLD0);
     return ps2_scan_code_to_ascii(a);
 }

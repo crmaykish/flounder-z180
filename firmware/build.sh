@@ -1,8 +1,7 @@
 #!/bin/sh
 
-zcc +z180 -startup=-1 -vn -SO3 -clib=new -o monitor.bin \
+zcc -compiler sccz80 -v +z180 -startup=-1 -SO3 -clib=sdcc_iy -o monitor.bin \
     monitor.c \
-    hardware.asm \
     flounder.c \
     ps2.c
 

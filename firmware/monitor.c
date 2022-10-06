@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <z180.h>
 #include "flounder.h"
 #include "ps2.h"
 
@@ -103,6 +104,12 @@ int main()
     uart_print(SYSTEM_NAME);
     uart_print(" System Monitor **");
 
+
+    uart_print("\r\n");
+    uart_print_hex(CNTLA1);
+    uart_print("\r\n");
+    uart_print_hex(CNTLB1);
+
     while (true)
     {
         uart_print("\r\n> ");
@@ -201,13 +208,12 @@ int main()
         }
         else if (strncmp(buffer, "pio", 3) == 0)
         {
-            pio_init();
-
             unsigned char a = 0;
 
             while (true)
             {
-                pio_setb(a);
+                z180_outp(PORTB_DATA, a);
+                z180_delay_ms(5);
                 a++;
             }
         }
