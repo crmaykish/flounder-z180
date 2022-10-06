@@ -2,40 +2,46 @@
 #include <z180.h>
 #include "flounder.h"
 
-void asci1_putc(char a)
+void asci0_putc(char a)
 {
-    while ((z180_inp(STAT1) & 0b00000010) == 0)
+    while ((z180_inp(STAT0) & 0b00000010) == 0)
     {
     }
 
-    z180_outp(TDR1, a);
+    z180_outp(TDR0, a);
 }
 
-char asci1_getc()
+char asci0_getc()
 {
-    while ((z180_inp(STAT1) & 0b10000000) == 0)
+    while ((z180_inp(STAT0) & 0b10000000) == 0)
     {
     }
 
-    return z180_inp(RDR1);
+    return z180_inp(RDR0);
 }
 
 void flounder_init(void)
 {
-    // Set clock divide to XTAL/1 (i.e. run at the full oscillator frequency)
-    z180_outp(CCR, 0x80);
+    // Assuming CLK oscillator is 18.432 MHz
 
-    // Set 0 memory wait states and 1 I/O wait state
-    z180_outp(DCNTL, 0);
+    // Set PHI to CLK / 2 = 9.216 MHz
+    z180_outp(CCR, 0x00);
+
+    // Set 0 memory wait states and 2 I/O wait states
+    z180_outp(DCNTL, 0b00010000);
 
     // Set CPU mode to full Z80 compatibility
     z180_outp(OMCR, 0);
 
-    // Set ASCI 1 to use external clock source, 115200 bps at 1.8432 MHz
-    z180_outp(CNTLB1, 0b00000111);
+    // Set X1 bit in ASEXT to 0 for 16/64 ASCI clock divider
+    // BRG mode to 0 for PHI/10 or PHI/30
+    z180_outp(ASEXT0, 0b00000000);
+
+    // Set ASCI0 baudrate to: PHI / 30 / 16 / 2 = 9600 baud (where PHI is 9.216 MHz)
+    z180_outp(CNTLB0, 0b00100001); // set to PHI / 30 / 16 / 2
 
     // Set Transmit and Receive Enable ON for ASCI 1, 8-bit, no parity, 1 stop bit
-    z180_outp(CNTLA1, 0b01100100);
+    z180_outp(CNTLA0, 0b01110100);
 
     // Set PIO port B to output mode
     z180_outp(PORTB_CMD, 0b00001111);
@@ -51,7 +57,7 @@ void uart_print(char *s)
 
     while (c != 0)
     {
-        asci1_putc(c);
+        asci0_putc(c);
         i++;
         c = s[i];
     }
@@ -71,7 +77,7 @@ void uart_print_hex(uint32_t n)
 
     if (n < 0x10)
     {
-        asci1_putc('0');
+        asci0_putc('0');
     }
 
     utoa((unsigned int)n, buffer, 16);
@@ -85,11 +91,11 @@ uint16_t uart_readline(char *buffer, bool echo)
 
     while (in != 0x0A && in != 0x0D)
     {
-        in = asci1_getc();
+        in = asci0_getc();
 
         if (echo)
         {
-            asci1_putc(in);
+            asci0_putc(in);
         }
 
         buffer[i] = in;

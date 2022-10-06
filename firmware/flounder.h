@@ -19,6 +19,9 @@
 #define RDR0 0x0008
 #define RDR1 0x0009
 
+#define ASEXT0 0x0012
+#define ASEXT1 0x0013
+
 #define CCR 0x001F
 #define DCNTL 0x0032
 #define OMCR 0x003E
@@ -36,8 +39,8 @@
 #define MEM(address) (*(volatile uint8_t *)(address))
 
 // ASCI
-void asci1_putc(char);
-char asci1_getc();
+void asci0_putc(char);
+char asci0_getc();
 
 // Hardware
 void flounder_init(void);
