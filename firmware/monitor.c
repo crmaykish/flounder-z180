@@ -104,12 +104,6 @@ int main()
     uart_print(SYSTEM_NAME);
     uart_print(" System Monitor **");
 
-
-    uart_print("\r\n");
-    uart_print_hex(CNTLA1);
-    uart_print("\r\n");
-    uart_print_hex(CNTLB1);
-
     while (true)
     {
         uart_print("\r\n> ");
@@ -144,7 +138,7 @@ int main()
 
             uint16_t addr = (uint16_t)strtoul(param, 0, 16);
 
-            uart_print_hex(MEM(addr));
+            uart_print_hex(z180_bpeek(addr));
         }
 
         else if (strncmp(buffer, "poke", 4) == 0)
@@ -160,8 +154,38 @@ int main()
             uint16_t addr = (uint16_t)strtoul(param1, 0, 16);
             uint8_t val = (uint8_t)strtoul(param2, 0, 16);
 
-            MEM(addr) = val;
-            uart_print_hex(MEM(addr));
+            z180_bpoke(addr, val);
+            uart_print_hex(z180_bpeek(addr));
+        }
+
+        else if (strncmp(buffer, "ipeek", 5) == 0)
+        {
+            char *param = parse_param(buffer, ' ', sizeof(buffer));
+
+            if (param == NULL)
+            {
+                break;
+            }
+
+            uint16_t addr = (uint16_t)strtoul(param, 0, 16);
+
+            uart_print_hex(z180_inp(addr));
+        }
+
+        else if (strncmp(buffer, "ipoke", 5) == 0)
+        {
+            char *param1 = parse_param(buffer, ' ', sizeof(buffer));
+            char *param2 = parse_param(&(buffer[strnlen(param1, 20)]), ' ', 20); // TODO: HACK!!! properly check the string length
+
+            if (param1 == NULL || param2 == NULL)
+            {
+                break;
+            }
+
+            uint16_t addr = (uint16_t)strtoul(param1, 0, 16);
+            uint8_t val = (uint8_t)strtoul(param2, 0, 16);
+
+            z180_outp(addr, val);
         }
 
         else if (strncmp(buffer, "load", 4) == 0)
