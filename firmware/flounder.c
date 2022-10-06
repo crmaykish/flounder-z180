@@ -4,6 +4,7 @@
 void flounder_init(void)
 {
     asci1_init();
+    pio_init();
 }
 
 void uart_print(char *s)

@@ -65,10 +65,14 @@ PORTB_CMD: equ $03
 PUBLIC _pio_init, _pio_setb
 
 _pio_init:
-    ld b, PIO_PREFIX ; load PIO prefix into B
+    ld b, PIO_PREFIX            ; Load PIO prefix into B
     ld a, %00001111
     ld c, PORTB_CMD
-    out (c), a  ; Set port B to output mode
+    out (c), a                  ; Set port B to output mode
+    
+    ld a, $00
+    ld c, PORTB_DATA
+    out (c), a                  ; Set port B to 0x00
     ret
 
 _pio_setb:
@@ -84,13 +88,13 @@ _pio_setb:
 ; CPLD
 ; =============================
 
-CPLD_PREFIX: equ $40
-CPLD0: equ $00          ; First memory mapped CPLD register (I/O space)
+CPLD_PREFIX: equ $40            ; CPLD high address byte in I/O space
+CPLD0: equ $00                  ; First memory mapped CPLD register (I/O space)
 
 PUBLIC _cpld_read
 
 _cpld_read:
-    ld b, CPLD_PREFIX
+    ld b, CPLD_PREFIX           ; Load CPLD prefix into B
     ld c, CPLD0
     in a, (c)
     ld l, a
