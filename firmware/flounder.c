@@ -2,6 +2,15 @@
 #include <z180.h>
 #include "flounder.h"
 
+void ISR_prt0()
+{
+    // Clear the interrupt by reading these registers
+    uint8_t a = z180_inp(TCR);
+    uint8_t b = z180_inp(TMDR0L);
+
+    asci0_putc('x');
+}
+
 void asci0_putc(char a)
 {
     while ((z180_inp(STAT0) & 0b00000010) == 0)
@@ -48,6 +57,16 @@ void flounder_init(void)
 
     // Set PIO port B to zero
     z180_outp(PORTB_DATA, 0x00);
+
+    // Disable external interrupts
+    z180_outp(ITC, 0x00);
+
+    // Load timer 0 with 0x1000 starting value  (roughly 9 ticks per second)
+    z180_outp(RLDR0H, 0xC0);
+    z180_outp(RLDR0L, 0x00);
+
+    // Enable timer 0 interrupts and start timer 0 counting
+    z180_outp(TCR, 0b00010001);
 }
 
 void uart_print(char *s)

@@ -241,6 +241,11 @@ int main()
                 a++;
             }
         }
+        else if (strncmp(buffer, "int", 3) == 0)
+        {
+            uart_print("enabling interrupts\r\n");
+            interrupts_enable();
+        }
         else
         {
             uart_print("Command not implemented: ");

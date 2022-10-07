@@ -24,7 +24,19 @@
 
 #define CCR 0x001F
 #define DCNTL 0x0032
+#define IL 0x0033
+#define ITC 0x0034
 #define OMCR 0x003E
+
+#define TMDR0L 0x000C
+#define TMDR0H 0x000D
+#define RLDR0L 0x000E
+#define RLDR0H 0x000F
+#define TCR 0x0010
+#define TMDR1L 0x0014
+#define TMDR1H 0x0015
+#define RLDR1L 0x0016
+#define RLDR1H 0x0017
 
 // PIO
 #define PORTA_DATA 0x2000
@@ -44,6 +56,8 @@ char asci0_getc();
 
 // Hardware
 void flounder_init(void);
+extern void interrupts_enable(void);
+extern void interrupts_disable(void);
 
 // I/O Helpers
 void uart_print(char *);
