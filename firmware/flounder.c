@@ -261,8 +261,65 @@ void lcd_putc(char c)
         }
         else if (lcd_row == 4)
         {
-            // TODO: shift the whole display up one row
-            lcd_clear();
+            // Shift the LCD display contents up one row and continue on the last row
+
+            // TODO: memccpy() would be slightly more efficient
+            memcpy(lcd_buffer[0], lcd_buffer[1], 40);
+            memcpy(lcd_buffer[1], lcd_buffer[2], 40);
+            memcpy(lcd_buffer[2], lcd_buffer[3], 40);
+            memset(lcd_buffer[3], 0, 40);
+
+            // TODO: this is 90% of what lcd_clear does() just without clearing the buffers
+
+            // Clear the display
+            lcd_busy_wait(0);
+            z180_outp(LCD_COMMAND0, LCD_COMMAND_CLEAR_DISPLAY);
+            lcd_busy_wait(1);
+            z180_outp(LCD_COMMAND1, LCD_COMMAND_CLEAR_DISPLAY);
+
+            // reset cursors
+            lcd_busy_wait(0);
+            z180_outp(LCD_COMMAND0, LCD_COMMAND_CURSOR_HOME);
+            lcd_busy_wait(1);
+            z180_outp(LCD_COMMAND1, LCD_COMMAND_CURSOR_HOME);
+
+            // Rewrite each of the rows to the row above it
+
+            for (int i = 0; i < 40; i++)
+            {
+                if (lcd_buffer[0][i] != 0)
+                {
+                    lcd_busy_wait(0);
+                    z180_outp(LCD_DATA0, lcd_buffer[0][i]);
+                }
+            }
+
+            lcd_busy_wait(0);
+            z180_outp(LCD_COMMAND0, 0b10000000 + 40);
+
+            for (int i = 0; i < 40; i++)
+            {
+                if (lcd_buffer[1][i] != 0)
+                {
+                    lcd_busy_wait(0);
+                    z180_outp(LCD_DATA0, lcd_buffer[1][i]);
+                }
+            }
+
+            for (int i = 0; i < 40; i++)
+            {
+                if (lcd_buffer[2][i] != 0)
+                {
+                    lcd_busy_wait(1);
+                    z180_outp(LCD_DATA1, lcd_buffer[2][i]);
+                }
+            }
+
+            lcd_row = 3;
+            lcd_col = 0;
+
+            lcd_busy_wait(1);
+            z180_outp(LCD_COMMAND1, 0b10000000 + 40);
         }
     }
 }
