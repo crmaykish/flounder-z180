@@ -104,15 +104,22 @@ int main()
     uart_print(SYSTEM_NAME);
     uart_print(" System Monitor **");
 
+    lcd_print("Flounder Z180\r\n");
+
     while (true)
     {
+        bool newline = true;
+
         uart_print("\r\n> ");
+        lcd_print(">");
 
         memset(buffer, 0, sizeof(buffer));
 
         uart_readline(buffer, true);
 
         uart_print("\r\n");
+
+        lcd_print("\r\n");
 
         if (strncmp(buffer, "dump", 4) == 0)
         {
@@ -139,6 +146,8 @@ int main()
             uint16_t addr = (uint16_t)strtoul(param, 0, 16);
 
             uart_print_hex(z180_bpeek(addr));
+
+            lcd_print_hex(z180_bpeek(addr));
         }
 
         else if (strncmp(buffer, "poke", 4) == 0)
@@ -156,6 +165,8 @@ int main()
 
             z180_bpoke(addr, val);
             uart_print_hex(z180_bpeek(addr));
+
+            lcd_print_hex(z180_bpeek(addr));
         }
 
         else if (strncmp(buffer, "ipeek", 5) == 0)
@@ -272,10 +283,20 @@ int main()
                 }
             }
         }
+        else if (strncmp(buffer, "clear", 5) == 0)
+        {
+            lcd_clear();
+            newline = false;
+        }
         else
         {
             uart_print("Command not implemented: ");
             uart_print(buffer);
+        }
+
+        if (newline)
+        {
+            lcd_print("\r\n");
         }
     }
 

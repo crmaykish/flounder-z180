@@ -74,7 +74,6 @@ void flounder_init(void)
     // z180_outp(TCR, 0b00010001);
 
     lcd_init();
-    lcd_print("Flounder Z180");
 }
 
 void uart_print(char *s)
@@ -123,6 +122,7 @@ uint16_t uart_readline(char *buffer, bool echo)
         if (echo)
         {
             asci0_putc(in);
+            lcd_putc(in);
         }
 
         buffer[i] = in;
@@ -364,4 +364,17 @@ uint8_t get_address()
 {
     lcd_busy_wait(0);
     return z180_inp(LCD_COMMAND0 & LCD_ADDR_MASK);
+}
+
+void lcd_print_hex(uint32_t n)
+{
+    char buffer[11] = {0};
+
+    if (n < 0x10)
+    {
+        lcd_putc('0');
+    }
+
+    utoa((unsigned int)n, buffer, 16);
+    lcd_print(buffer);
 }

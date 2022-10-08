@@ -86,6 +86,8 @@ void lcd_print(char *s);
 void lcd_clear();
 uint8_t get_address();
 
+void lcd_print_hex(uint32_t n);
+
 // I/O Helpers
 void uart_print(char *);
 void uart_print_dec(uint32_t);
