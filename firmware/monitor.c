@@ -263,6 +263,12 @@ int main()
                 else
                 {
                     lcd_putc(a);
+
+                    if (a == '\r')
+                    {
+
+                        lcd_putc('\n');
+                    }
                 }
             }
         }
