@@ -9,6 +9,8 @@ void ISR_prt0()
     uint8_t b = z180_inp(TMDR0L);
 
     asci0_putc('x');
+
+    // TODO: how do we change static variables from within an ISR?
 }
 
 void asci0_putc(char a)
@@ -67,6 +69,9 @@ void flounder_init(void)
 
     // Enable timer 0 interrupts and start timer 0 counting
     z180_outp(TCR, 0b00010001);
+
+    lcd_init();
+    lcd_print("Flounder Z180");
 }
 
 void uart_print(char *s)
@@ -140,4 +145,37 @@ char *parse_param(char *s, char delim, size_t n)
     }
 
     return s + i + 1;
+}
+
+void lcd_init()
+{
+    lcd_busy_wait();
+    z180_outp(LCD_COMMAND, LCD_COMMAND_SETMODE);
+    lcd_busy_wait();
+    z180_outp(LCD_COMMAND, LCD_COMMAND_CURSOR_ON);
+    lcd_busy_wait();
+    z180_outp(LCD_COMMAND, LCD_COMMAND_CLEAR_DISPLAY);
+    lcd_busy_wait();
+    z180_outp(LCD_COMMAND, LCD_COMMAND_CURSOR_HOME);
+}
+
+void lcd_busy_wait()
+{
+    while ((z180_inp(LCD_COMMAND) & 0b10000000) != 0)
+    {
+    }
+}
+
+void lcd_print(char *s)
+{
+    char i = 0;
+    char c = s[i];
+
+    while (c != 0)
+    {
+        lcd_busy_wait();
+        z180_outp(LCD_DATA, c);
+        i++;
+        c = s[i];
+    }
 }
