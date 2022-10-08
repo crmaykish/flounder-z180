@@ -12,9 +12,9 @@ module flounder_cpld(
     output ROMEN,
     output RAMEN,
     output PIOEN,
-    output reg U0,
-    output reg U1,
-    output LCDEN
+    output LCDEN0,
+    output LCDEN1,
+    output reg U0
 );
 
 // 32 KB ROM at 0x0000
@@ -30,7 +30,11 @@ assign PIOEN = ~(~A[15] * ~A[14] * A[13] * ~IOREQ);
 assign CPLDEN = ~(~A[15] * A[14] * ~A[13] * ~IOREQ);
 
 // I/O 0x6000, active high
-assign LCDEN = ~A[15] * A[14] * A[13] * ~IOREQ;
+assign LCDEN0 = ~A[15] * A[14] * A[13] * ~IOREQ;
+
+// I/O 0x8000, active high
+assign LCDEN1 = A[15] * ~A[14] * ~A[13] * ~IOREQ;
+
 
 // PS/2 keyboard handler
 
@@ -46,7 +50,6 @@ always @(posedge CLK) begin
         kb_val <= 0;
         temp_val <= 0;
 		  U0 <= 0;
-		  U1 <= 0;
     end
     else begin
         // PS/2 state machine

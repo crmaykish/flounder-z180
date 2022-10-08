@@ -243,8 +243,28 @@ int main()
         }
         else if (strncmp(buffer, "int", 3) == 0)
         {
-            uart_print("enabling interrupts\r\n");
-            interrupts_enable();
+            // uart_print("enabling interrupts\r\n");
+            // interrupts_enable();
+        }
+        else if (strncmp(buffer, "lcd", 3) == 0)
+        {
+            uart_print("Starting LCD test\r\n");
+
+            lcd_clear();
+
+            while (true)
+            {
+                char a = asci0_getc();
+
+                if (a == 0x1B)
+                {
+                    break;
+                }
+                else
+                {
+                    lcd_putc(a);
+                }
+            }
         }
         else
         {

@@ -2,6 +2,10 @@
 #include <z180.h>
 #include "flounder.h"
 
+uint8_t lcd_row = 0;
+uint8_t lcd_col = 0;
+char lcd_buffer[4][40];
+
 void ISR_prt0()
 {
     // Clear the interrupt by reading these registers
@@ -9,8 +13,6 @@ void ISR_prt0()
     uint8_t b = z180_inp(TMDR0L);
 
     asci0_putc('x');
-
-    // TODO: how do we change static variables from within an ISR?
 }
 
 void asci0_putc(char a)
@@ -68,7 +70,7 @@ void flounder_init(void)
     z180_outp(RLDR0L, 0x00);
 
     // Enable timer 0 interrupts and start timer 0 counting
-    z180_outp(TCR, 0b00010001);
+    // z180_outp(TCR, 0b00010001);
 
     lcd_init();
     lcd_print("Flounder Z180");
@@ -149,20 +151,68 @@ char *parse_param(char *s, char delim, size_t n)
 
 void lcd_init()
 {
-    lcd_busy_wait();
-    z180_outp(LCD_COMMAND, LCD_COMMAND_SETMODE);
-    lcd_busy_wait();
-    z180_outp(LCD_COMMAND, LCD_COMMAND_CURSOR_ON);
-    lcd_busy_wait();
-    z180_outp(LCD_COMMAND, LCD_COMMAND_CLEAR_DISPLAY);
-    lcd_busy_wait();
-    z180_outp(LCD_COMMAND, LCD_COMMAND_CURSOR_HOME);
+    lcd_row = 0;
+    lcd_col = 0;
+
+    uart_print("\r\n");
+    uart_print_hex((uint32_t)(&lcd_row));
+    uart_print("\r\n");
+
+    lcd_busy_wait(0);
+    z180_outp(LCD_COMMAND0, LCD_COMMAND_SETMODE);
+
+    lcd_busy_wait(0);
+    z180_outp(LCD_COMMAND0, LCD_DISPLAY_COMMAND | LCD_DISPLAY_ON | LCD_CURSOR_ON | LCD_CURSOR_BLINK);
+
+    lcd_busy_wait(1);
+    z180_outp(LCD_COMMAND1, LCD_COMMAND_SETMODE);
+
+    lcd_busy_wait(1);
+    z180_outp(LCD_COMMAND1, LCD_DISPLAY_COMMAND | LCD_DISPLAY_ON);
+
+    lcd_clear();
 }
 
-void lcd_busy_wait()
+void lcd_busy_wait(uint8_t controller)
 {
-    while ((z180_inp(LCD_COMMAND) & 0b10000000) != 0)
+    while ((z180_inp((controller == 0 ? LCD_COMMAND0 : LCD_COMMAND1)) & LCD_BUSY_FLAG) != 0)
     {
+    }
+}
+
+void lcd_putc(char c)
+{
+    // TODO: handle \r and \n and backspace characters
+
+    uart_print("row/col: ");
+    uart_print_dec(lcd_row);
+    uart_print(", ");
+    uart_print_dec(lcd_col);
+    uart_print("\r\n");
+
+    lcd_buffer[lcd_row][lcd_col] = c;
+
+    lcd_col++;
+
+    if (lcd_col > 40)
+    {
+        lcd_col = 0;
+        lcd_row++;
+    }
+
+    // TODO: if current row transitions between controllers, set the cursor modes appropriately
+
+    // TODO: if row goes from 3 to 0, shift the whole display up one row
+
+    if (lcd_row < 2)
+    {
+        lcd_busy_wait(0);
+        z180_outp(LCD_DATA0, c);
+    }
+    else
+    {
+        lcd_busy_wait(1);
+        z180_outp(LCD_DATA1, c);
     }
 }
 
@@ -173,9 +223,32 @@ void lcd_print(char *s)
 
     while (c != 0)
     {
-        lcd_busy_wait();
-        z180_outp(LCD_DATA, c);
+        lcd_putc(c);
         i++;
         c = s[i];
     }
+}
+
+void lcd_clear()
+{
+    lcd_busy_wait(0);
+    z180_outp(LCD_COMMAND0, LCD_COMMAND_CLEAR_DISPLAY);
+    lcd_busy_wait(0);
+    z180_outp(LCD_COMMAND0, LCD_COMMAND_CURSOR_HOME);
+
+    lcd_busy_wait(1);
+    z180_outp(LCD_COMMAND1, LCD_COMMAND_CLEAR_DISPLAY);
+    lcd_busy_wait(1);
+    z180_outp(LCD_COMMAND1, LCD_COMMAND_CURSOR_HOME);
+
+    lcd_row = 0;
+    lcd_col = 0;
+
+    // TODO: clear the LCD buffer
+}
+
+uint8_t get_address()
+{
+    lcd_busy_wait(0);
+    return z180_inp(LCD_COMMAND0 & LCD_ADDR_MASK);
 }
