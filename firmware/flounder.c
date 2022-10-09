@@ -8,7 +8,17 @@ uint8_t lcd_row = 0;
 uint8_t lcd_col = 0;
 char lcd_buffer[4][40] = {{0}};
 
-void ISR_prt0()
+void z180_int_asci0() __critical __interrupt(0x0E)
+{
+    // TODO: ASCI0 ISR
+}
+
+void z180_int_asci1() __critical __interrupt(0x10)
+{
+    // TODO: ASCI1 ISR
+}
+
+void z180_int_prt0() __critical __interrupt(0x04)
 {
     // Clear the interrupt by reading these registers
     uint8_t a = z180_inp(TCR);

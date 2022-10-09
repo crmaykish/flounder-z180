@@ -75,11 +75,6 @@ char asci0_getc();
 
 // Hardware
 void flounder_init(void);
-extern void interrupts_enable(void);
-extern void interrupts_disable(void);
-
-extern uint8_t get_i();
-extern void set_i(uint8_t);
 
 // LCD Display
 void lcd_init();

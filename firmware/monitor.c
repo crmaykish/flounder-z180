@@ -252,11 +252,6 @@ int main()
                 a++;
             }
         }
-        else if (strncmp(buffer, "int", 3) == 0)
-        {
-            uart_print("Enabling interrupts\r\n");
-            interrupts_enable();
-        }
         else if (strncmp(buffer, "lcd", 3) == 0)
         {
             uart_print("Starting LCD test\r\n");
