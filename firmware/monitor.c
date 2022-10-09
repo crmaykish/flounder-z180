@@ -102,7 +102,7 @@ int main()
     uart_print("\r\n");
     uart_print("** ");
     uart_print(SYSTEM_NAME);
-    uart_print(" System Monitor **");
+    uart_print(" System Monitor **\r\n");
 
     lcd_print("Flounder Z180\r\n");
 
@@ -254,8 +254,8 @@ int main()
         }
         else if (strncmp(buffer, "int", 3) == 0)
         {
-            // uart_print("enabling interrupts\r\n");
-            // interrupts_enable();
+            uart_print("enabling interrupts\r\n");
+            interrupts_enable();
         }
         else if (strncmp(buffer, "lcd", 3) == 0)
         {
