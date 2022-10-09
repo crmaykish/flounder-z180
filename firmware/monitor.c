@@ -254,7 +254,7 @@ int main()
         }
         else if (strncmp(buffer, "int", 3) == 0)
         {
-            uart_print("enabling interrupts\r\n");
+            uart_print("Enabling interrupts\r\n");
             interrupts_enable();
         }
         else if (strncmp(buffer, "lcd", 3) == 0)
