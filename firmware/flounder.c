@@ -53,8 +53,8 @@ void flounder_init(void)
     // Set PHI to CLK / 2 = 9.216 MHz
     z180_outp(CCR, 0x00);
 
-    // Set 0 memory wait states and 2 I/O wait states
-    z180_outp(DCNTL, 0b00010000);
+    // Set 3 memory wait states and 4 I/O wait states
+    z180_outp(DCNTL, 0b11110000);
 
     // Set CPU mode to full Z80 compatibility
     z180_outp(OMCR, 0);
@@ -63,8 +63,8 @@ void flounder_init(void)
     // BRG mode to 0 for PHI/10 or PHI/30
     z180_outp(ASEXT0, 0b00000000);
 
-    // Set ASCI0 baudrate to: PHI / 30 / 16 / 2 = 9600 baud (where PHI is 9.216 MHz)
-    z180_outp(CNTLB0, 0b00100001); // set to PHI / 30 / 16 / 2
+    // Set ASCI0 baudrate to: PHI / 30 / 16 / 1 = 19200 baud (where PHI is 9.216 MHz)
+    z180_outp(CNTLB0, 0b00100000);
 
     // Set Transmit and Receive Enable ON for ASCI 1, 8-bit, no parity, 1 stop bit
     z180_outp(CNTLA0, 0b01110100);
