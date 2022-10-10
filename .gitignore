@@ -1,8 +1,6 @@
 *.bin
 *.o
-.vscode/settings.json
-.vscode/c_cpp_properties.json
-.vscode/settings.json
+.vscode/*
 firmware/monitor
 *.map
 *.def

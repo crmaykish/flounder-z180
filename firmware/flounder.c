@@ -8,17 +8,18 @@ uint8_t lcd_row = 0;
 uint8_t lcd_col = 0;
 char lcd_buffer[4][40] = {{0}};
 
-void z180_int_asci0() __critical __interrupt(0x0E)
-{
-    // TODO: ASCI0 ISR
-}
+// void z180_int_asci0() __critical __interrupt(0x0E)
+// {
+//     // TODO: ASCI0 ISR
+//     asci0_putc('0');
+// }
 
-void z180_int_asci1() __critical __interrupt(0x10)
-{
-    // TODO: ASCI1 ISR
-}
+// void z180_int_asci1() __critical __interrupt(0x10)
+// {
+//     asci0_putc('1');
+// }
 
-void z180_int_prt0() __critical __interrupt(0x04)
+void my_isr() __critical __interrupt(0x04)
 {
     // Clear the interrupt by reading these registers
     uint8_t a = z180_inp(TCR);
@@ -26,6 +27,14 @@ void z180_int_prt0() __critical __interrupt(0x04)
 
     counter++;
     z180_outp(PORTB_DATA, counter);
+}
+
+void bad_interrupt() __critical __interrupt(0)
+{
+    uart_print("\r\nBAD\r\n");
+    while (1)
+    {
+    }
 }
 
 void asci0_putc(char a)
@@ -48,13 +57,21 @@ char asci0_getc()
 
 void flounder_init(void)
 {
+    interrupts_disable();
+
+    z180_outp(STAT0, 0x00); // disable interrupts on ASCI0
+    z180_outp(STAT1, 0x00); // disable interrupts on ASCI1
+
+    // Disable external interrupts
+    z180_outp(ITC, 0x00);
+
     // Assuming CLK oscillator is 18.432 MHz
 
     // Set PHI to CLK / 2 = 9.216 MHz
     z180_outp(CCR, 0x00);
 
-    // Set 0 memory wait states and 2 I/O wait states
-    z180_outp(DCNTL, 0b00010000);
+    // Set 3 memory wait states and 4 I/O wait states
+    z180_outp(DCNTL, 0b11110000);
 
     // Set CPU mode to full Z80 compatibility
     z180_outp(OMCR, 0);
@@ -63,8 +80,8 @@ void flounder_init(void)
     // BRG mode to 0 for PHI/10 or PHI/30
     z180_outp(ASEXT0, 0b00000000);
 
-    // Set ASCI0 baudrate to: PHI / 30 / 16 / 2 = 9600 baud (where PHI is 9.216 MHz)
-    z180_outp(CNTLB0, 0b00100001); // set to PHI / 30 / 16 / 2
+    // Set ASCI0 baudrate to: PHI / 10 / 16 / 1 = 57600 baud (where PHI is 9.216 MHz)
+    z180_outp(CNTLB0, 0b00000000);
 
     // Set Transmit and Receive Enable ON for ASCI 1, 8-bit, no parity, 1 stop bit
     z180_outp(CNTLA0, 0b01110100);
@@ -75,8 +92,13 @@ void flounder_init(void)
     // Set PIO port B to zero
     z180_outp(PORTB_DATA, 0x00);
 
-    // Disable external interrupts
-    z180_outp(ITC, 0x00);
+    for (uint16_t i = 0xFB00; i < 0xFC00; i += 2)
+    {
+        z180_wpoke(i, (uint16_t)bad_interrupt);
+    }
+
+    // Add timer ISR to vector table
+    z180_wpoke(0xFB04, (uint16_t)my_isr);
 
     // Load timer 0 with 0x1000 starting value  (roughly 9 ticks per second)
     z180_outp(RLDR0H, 0xC0);
@@ -86,6 +108,8 @@ void flounder_init(void)
     z180_outp(TCR, 0b00010001);
 
     lcd_init();
+
+    interrupts_enable();
 }
 
 void uart_print(char *s)
