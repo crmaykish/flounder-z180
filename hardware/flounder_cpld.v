@@ -14,7 +14,7 @@ module flounder_cpld(
     output PIOEN,
     output LCDEN0,
     output LCDEN1,
-    output reg U0
+    output USBEN
 );
 
 // 32 KB ROM at 0x0000
@@ -35,6 +35,8 @@ assign LCDEN0 = ~A[15] * A[14] * A[13] * ~IOREQ;
 // I/O 0x8000, active high
 assign LCDEN1 = A[15] * ~A[14] * ~A[13] * ~IOREQ;
 
+// I/O 0xA000, active low
+assign USBEN = (A[15] * ~A[14] * A[13] * ~IOREQ);
 
 // PS/2 keyboard handler
 
@@ -49,7 +51,6 @@ always @(posedge CLK) begin
         kb_index <= 0;
         kb_val <= 0;
         temp_val <= 0;
-		  U0 <= 0;
     end
     else begin
         // PS/2 state machine
@@ -64,10 +65,7 @@ always @(posedge CLK) begin
 
             if (sample_delay == 8) begin
                 case (kb_index)
-                        0:begin
-                            // Stop bit
-                            U0 <= 1;    // LED goes high when a scan code starts
-                        end
+                        0:;
                         1: temp_val[0] <= KB_DATA;
                         2: temp_val[1] <= KB_DATA;
                         3: temp_val[2] <= KB_DATA;
@@ -76,10 +74,7 @@ always @(posedge CLK) begin
                         6: temp_val[5] <= KB_DATA;
                         7: temp_val[6] <= KB_DATA;
                         8: temp_val[7] <= KB_DATA;
-                        9: begin
-                            // Stop bit
-                            U0 <= 0;    // LED goes low when the scan code is completely read
-                        end
+                        9:;
                         10: kb_val <= temp_val;    // Parity bit, latch the complete scan code into the storage register
                     endcase
 
