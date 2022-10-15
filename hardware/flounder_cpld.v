@@ -36,7 +36,7 @@ assign LCDEN0 = ~A[15] * A[14] * A[13] * ~IOREQ;
 assign LCDEN1 = A[15] * ~A[14] * ~A[13] * ~IOREQ;
 
 // I/O 0xA000, active low
-assign USBEN = (A[15] * ~A[14] * A[13] * ~IOREQ);
+assign USBEN = ~(A[15] * ~A[14] * A[13] * ~IOREQ);
 
 // PS/2 keyboard handler
 
