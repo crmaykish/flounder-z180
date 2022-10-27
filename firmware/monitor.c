@@ -2,6 +2,8 @@
 #include <string.h>
 #include <z180.h>
 #include "flounder.h"
+#include "asci.h"
+#include "lcd.h"
 #include "ps2.h"
 
 void print_binary_string(char *str, uint8_t max)
@@ -97,7 +99,8 @@ int main()
 {
     char buffer[32] = {0};
 
-    flounder_init();
+    cpu_init();
+    lcd_init();
 
     uart_print("\r\n");
     uart_print("** ");

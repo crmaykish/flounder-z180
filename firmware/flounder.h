@@ -48,53 +48,11 @@
 // CPLD
 #define CPLD0 0x4000
 
-// LCD Display
-#define LCD_COMMAND0 0x6000
-#define LCD_DATA0 0x6001
-#define LCD_COMMAND1 0x8000
-#define LCD_DATA1 0x8001
-
-#define LCD_COMMAND_SETMODE 0x3F
-#define LCD_COMMAND_CURSOR_ON 0x0F
-#define LCD_COMMAND_CLEAR_DISPLAY 1
-#define LCD_COMMAND_CURSOR_HOME 2
-
-#define LCD_BUSY_FLAG 0b10000000
-#define LCD_ADDR_MASK 0b01111111
-
-#define LCD_DISPLAY_COMMAND 0b00001000
-#define LCD_DISPLAY_ON 0b100
-#define LCD_CURSOR_ON 0b10
-#define LCD_CURSOR_BLINK 0b1
-
 // Memory
 #define MEM(address) (*(volatile uint8_t *)(address))
 
-// ASCI
-void asci0_putc(char);
-char asci0_getc();
-
-void asci1_putc(char);
-char asci1_getc();
-
 // Hardware
-void flounder_init(void);
-
-// LCD Display
-void lcd_init();
-void lcd_busy_wait(uint8_t controller);
-void lcd_putc(char c);
-void lcd_print(char *s);
-void lcd_clear();
-uint8_t get_address();
-
-void lcd_print_hex(uint32_t n);
-
-// I/O Helpers
-void uart_print(char *);
-void uart_print_dec(uint32_t);
-void uart_print_hex(uint32_t);
-uint16_t uart_readline(char *buffer, bool echo);
+void cpu_init(void);
 
 // Utilities
 char *parse_param(char *s, char delim, size_t n);

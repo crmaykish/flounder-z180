@@ -5,6 +5,8 @@ rm -f *.bin *.map *.def monitor
 zcc -v +z180 -startup=1 -SO3 -clib=sdcc_iy -g -m -o monitor -create-app \
     monitor.c \
     flounder.c \
+    asci.c \
+    lcd.c \
     ps2.c \
     -pragma-define:CRT_INTERRUPT_MODE=2 \
     -pragma-define:CRT_ENABLE_EIDI=0x13 \
