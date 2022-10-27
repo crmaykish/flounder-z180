@@ -12,11 +12,11 @@ void print_binary_string(char *str, uint8_t max)
     {
         if (str[i] >= 32 && str[i] < 127)
         {
-            asci0_putc(str[i]);
+            asci1_putc(str[i]);
         }
         else
         {
-            asci0_putc('.');
+            asci1_putc('.');
         }
 
         i++;
@@ -70,7 +70,7 @@ void load(uint16_t addr)
 
     while (magic_count != 3)
     {
-        in = asci0_getc();
+        in = asci1_getc();
 
         MEM(addr + in_count) = in;
 
@@ -230,10 +230,10 @@ int main()
                 {
                     if (last_char != 0)
                     {
-                        asci0_putc(a);
+                        asci1_putc(a);
                         if (a == '\r')
                         {
-                            asci0_putc('\n');
+                            asci1_putc('\n');
                         }
                     }
 
@@ -260,7 +260,7 @@ int main()
 
             while (true)
             {
-                char a = asci0_getc();
+                char a = asci1_getc();
 
                 if (a == 0x1B)
                 {

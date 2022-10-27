@@ -22,6 +22,7 @@
 #define ASEXT0 0x0012
 #define ASEXT1 0x0013
 
+#define CMR 0x001E
 #define CCR 0x001F
 #define DCNTL 0x0032
 #define IL 0x0033
@@ -72,6 +73,9 @@
 // ASCI
 void asci0_putc(char);
 char asci0_getc();
+
+void asci1_putc(char);
+char asci1_getc();
 
 // Hardware
 void flounder_init(void);

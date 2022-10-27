@@ -3,7 +3,7 @@ module flounder_84_decoder(
 	input CLK2,
 	input RST,
 	input [19:0] ADDR,
-	input [7:0] DATA,
+	output [7:0] DATA,
 	
 	output WAIT,
 	
@@ -13,8 +13,8 @@ module flounder_84_decoder(
 	input IOREQ,
 	input M1,
 	
-	input NMI,
-	input [2:0] INT,
+	output NMI,
+	output [2:0] INT,
 	output RAMEN,
 	output ROMEN,
 	output USBEN,
@@ -33,14 +33,7 @@ module flounder_84_decoder(
 	output [7:0] USER
 );
 
-reg [20:0] counter = 0;
-
-/*
-always @(posedge CLK2) begin
-	if (~RST) counter <= 0;
-	else counter <= counter + 1;
-end
-*/
+wire CPLDEN;
 
 // 32 KB ROM at 0x0000
 assign ROMEN = ~(~ADDR[19] * ~ADDR[18] * ~ADDR[17] * ~ADDR[16] * ~ADDR[15] * ~MREQ * ~R);
@@ -48,8 +41,11 @@ assign ROMEN = ~(~ADDR[19] * ~ADDR[18] * ~ADDR[17] * ~ADDR[16] * ~ADDR[15] * ~MR
 // 32 KB SRAM at 0x8000
 assign RAMEN = ~(~ADDR[19] * ~ADDR[18] * ~ADDR[17] * ~ADDR[16] * ADDR[15] * ~MREQ);
 
+// I/O 0x2000, active low
+assign PIOEN = ~(~ADDR[15] * ~ADDR[14] * ADDR[13] * ~IOREQ);
+
 // I/O 0x4000, active low
-assign CPLDEN = ~(~ADDR[15] * ADDR[14] * ~ADDR[13] * ~IOREQ);
+//assign CPLDEN = ~(~ADDR[15] * ADDR[14] * ~ADDR[13] * ~IOREQ);
 
 // I/O 0x6000, active high
 assign LCDEN0 = ~ADDR[15] * ADDR[14] * ADDR[13] * ~IOREQ;
@@ -57,11 +53,30 @@ assign LCDEN0 = ~ADDR[15] * ADDR[14] * ADDR[13] * ~IOREQ;
 // I/O 0x8000, active high
 assign LCDEN1 = ADDR[15] * ~ADDR[14] * ~ADDR[13] * ~IOREQ;
 
-assign LED = counter[20:18];
+// I/O 0xA000, active low
+assign USBEN = ~(ADDR[15] * ~ADDR[14] * ADDR[13] * ~IOREQ);
 
-//assign CLK_ASCI = counter[0];
 
-assign WAIT = 1'b1;
+assign NMI = 1'bZ;
+assign INT = 3'bZ;
+
+assign WAIT = 1'bZ;
+
+
+
+assign USER = 8'b0;
+
+assign DATA = 8'bZ;
+
+reg [19:0] counter = 0;
+
+always @(posedge CLK2) begin
+	if (~RST) counter <= 1'b0;
+	else counter <= counter + 1'b1;
+end
+
+assign LED = counter[19:17];
+assign CLK_ASCI = counter[0];	// 1.8432 MHz / 2
 
 /*
 reg [3:0] kb_index = 0;
@@ -83,7 +98,7 @@ always @(posedge CLK) begin
             // PS/2 clock line is active-low
 
             if (~kb_clk_read)
-                sample_delay <= sample_delay + 1;
+                sample_delay <= sample_delay + 1'b1;
 
             // When the PS/2 clock line goes low, wait 8 CPU cycles and then sample the data line
 
@@ -103,7 +118,7 @@ always @(posedge CLK) begin
                     endcase
 
                     if (kb_index < 10)
-                        kb_index <= kb_index + 1;
+                        kb_index <= kb_index + 1'b1;
                     else
                         kb_index <= 0;
 
