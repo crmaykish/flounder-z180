@@ -10,7 +10,7 @@ ROMPRAGMAS = -pragma-define:CRT_INTERRUPT_MODE=2 \
 
 MONITOR_SRC = monitor.c flounder.c asci.c lcd.c ps2.c run.asm
 
-HELLO_SRC = hello.c flounder.c asci.c
+HELLO_SRC = hello.c flounder.c asci.c lcd.c
 
 .PHONY: all clean
 
