@@ -215,6 +215,11 @@ int main()
 
             load(addr);
         }
+        else if (strncmp(buffer, "run", 3) == 0)
+        {
+            uart_print("Jumping to 0xB000...\r\n");
+            run();
+        }
         else if (strncmp(buffer, "cpld", 4) == 0)
         {
             char last_char = 0;

@@ -52,6 +52,8 @@
 #define MEM(address) (*(volatile uint8_t *)(address))
 
 // Hardware
+extern void run();
+
 void cpu_init(void);
 
 // Utilities
