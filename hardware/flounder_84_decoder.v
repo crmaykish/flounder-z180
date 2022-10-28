@@ -44,8 +44,8 @@ assign RAMEN = ~(~ADDR[19] * ~ADDR[18] * ~ADDR[17] * ~ADDR[16] * ADDR[15] * ~MRE
 // I/O 0x2000, active low
 assign PIOEN = ~(~ADDR[15] * ~ADDR[14] * ADDR[13] * ~IOREQ);
 
-// I/O 0x4000, active low
-//assign CPLDEN = ~(~ADDR[15] * ADDR[14] * ~ADDR[13] * ~IOREQ);
+// I/O 0x4000, active high
+assign CPLDEN = ~ADDR[15] * ADDR[14] * ~ADDR[13] * ~IOREQ * M1 * ~R;
 
 // I/O 0x6000, active high
 assign LCDEN0 = ~ADDR[15] * ADDR[14] * ADDR[13] * ~IOREQ;
@@ -62,23 +62,12 @@ assign INT = 3'bZ;
 
 assign WAIT = 1'bZ;
 
-
-
 assign USER = 8'b0;
 
-assign DATA = 8'bZ;
+assign CLK_ASCI = CLK2;
 
-reg [19:0] counter = 0;
+// PS/2 keyboard decoder
 
-always @(posedge CLK2) begin
-	if (~RST) counter <= 1'b0;
-	else counter <= counter + 1'b1;
-end
-
-assign LED = counter[19:17];
-assign CLK_ASCI = counter[0];	// 1.8432 MHz / 2
-
-/*
 reg [3:0] kb_index = 0;
 reg [7:0] kb_val = 0;
 reg [7:0] temp_val = 0;
@@ -101,7 +90,6 @@ always @(posedge CLK) begin
                 sample_delay <= sample_delay + 1'b1;
 
             // When the PS/2 clock line goes low, wait 8 CPU cycles and then sample the data line
-
             if (sample_delay == 8) begin
                 case (kb_index)
                         0:;
@@ -134,7 +122,8 @@ always @(posedge CLK) begin
     end
 end
 
+
 // If the CPLD is selected on the address bus, output the last keyboard value on the data bus, else high-impedance
-assign DATA = (~CPLDEN) ? kb_val : 8'bZ;
-*/
+assign DATA = CPLDEN ? kb_val : 8'bZ;
+
 endmodule
