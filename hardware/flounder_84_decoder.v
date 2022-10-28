@@ -3,7 +3,7 @@ module flounder_84_decoder(
 	input CLK2,
 	input RST,
 	input [19:0] ADDR,
-	output [7:0] DATA,
+	inout [7:0] DATA,
 	
 	output WAIT,
 	
@@ -29,7 +29,7 @@ module flounder_84_decoder(
 	input KB_CLK,
 	input KB_DATA,
 	
-	output [2:0] LED,
+	output reg [2:0] LED,
 	output [7:0] USER
 );
 
@@ -45,7 +45,7 @@ assign RAMEN = ~(~ADDR[19] * ~ADDR[18] * ~ADDR[17] * ~ADDR[16] * ADDR[15] * ~MRE
 assign PIOEN = ~(~ADDR[15] * ~ADDR[14] * ADDR[13] * ~IOREQ);
 
 // I/O 0x4000, active high
-assign CPLDEN = ~ADDR[15] * ADDR[14] * ~ADDR[13] * ~IOREQ * M1 * ~R;
+assign CPLDEN = ~ADDR[15] * ADDR[14] * ~ADDR[13] * ~IOREQ * M1;
 
 // I/O 0x6000, active high
 assign LCDEN0 = ~ADDR[15] * ADDR[14] * ADDR[13] * ~IOREQ;
@@ -55,6 +55,9 @@ assign LCDEN1 = ADDR[15] * ~ADDR[14] * ~ADDR[13] * ~IOREQ;
 
 // I/O 0xA000, active low
 assign USBEN = ~(ADDR[15] * ~ADDR[14] * ADDR[13] * ~IOREQ);
+
+wire PS2EN = CPLDEN * ~ADDR[1] * ~ADDR[0];
+wire LEDEN = CPLDEN * ~ADDR[1] * ADDR[0];
 
 
 assign NMI = 1'bZ;
@@ -124,6 +127,12 @@ end
 
 
 // If the CPLD is selected on the address bus, output the last keyboard value on the data bus, else high-impedance
-assign DATA = CPLDEN ? kb_val : 8'bZ;
+assign DATA = PS2EN ? kb_val : 8'bZ;
+
+// CPLD's LEDs are addressable by the CPU
+always @(posedge CLK) begin
+	if (~RST) LED <= 3'b0;
+	else if (LEDEN) LED <= DATA[2:0];
+end
 
 endmodule
