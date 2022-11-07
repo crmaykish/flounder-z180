@@ -8,9 +8,6 @@ char ps2_scan_code_to_ascii(unsigned char code)
 
     switch (code)
     {
-    case 0xF0:
-        a = '*';
-        break;
     case 0x5A:
         a = '\r';
         break;
@@ -132,15 +129,42 @@ char ps2_scan_code_to_ascii(unsigned char code)
     return a;
 }
 
+bool ps2_char_available()
+{
+    return (z180_inp(CPLD_PS2) != 0);
+}
+
 char ps2_get_char()
 {
-    // Read the latest scancode from the CPLD
-    char a = z180_inp(CPLD_PS2);
+    bool char_available = false;
+    bool break_char = false;
+    char a = 0;
 
-    if (a != 0)
+    while (!char_available)
     {
-        // Acknowledge that the scancode was received (this clears the buffer on the CPLD)
-        z180_outp(CPLD_PS2, 0);
+        a = z180_inp(CPLD_PS2);
+
+        if (a != 0)
+        {
+            // Acknowledge that the scancode was received (this clears the buffer on the CPLD)
+            z180_outp(CPLD_PS2, 0);
+
+            if (a == PS2_BREAK_BYTE)
+            {
+                break_char = true;
+            }
+            else
+            {
+                if (break_char)
+                {
+                    break_char = false;
+                }
+                else
+                {
+                    char_available = true;
+                }
+            }
+        }
     }
 
     // Convert the scancode to an ASCII character and return

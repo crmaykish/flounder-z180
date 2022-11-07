@@ -142,11 +142,7 @@ int main()
             while (true)
             {
                 char a = ps2_get_char();
-
-                if (a != 0)
-                {
-                    asci1_putc(a);
-                }
+                asci1_putc(a);
             }
         }
         else if (strncmp(buffer, "clear", 5) == 0)
