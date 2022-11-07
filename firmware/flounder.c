@@ -66,7 +66,7 @@ char *parse_param(char *s, char delim, size_t n)
     while (s[i] != delim && i < n)
     {
         i++;
-    }1
+    }
 
     if (i == (n - 1))
     {
