@@ -134,6 +134,15 @@ char ps2_scan_code_to_ascii(unsigned char code)
 
 char ps2_get_char()
 {
+    // Read the latest scancode from the CPLD
     char a = z180_inp(CPLD_PS2);
+
+    if (a != 0)
+    {
+        // Acknowledge that the scancode was received (this clears the buffer on the CPLD)
+        z180_outp(CPLD_PS2, 0);
+    }
+
+    // Convert the scancode to an ASCII character and return
     return ps2_scan_code_to_ascii(a);
 }

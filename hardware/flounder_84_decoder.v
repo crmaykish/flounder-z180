@@ -76,15 +76,22 @@ reg [7:0] kb_val = 0;
 reg [7:0] temp_val = 0;
 reg kb_clk_read = 0;
 reg [3:0] sample_delay = 0;
+reg cpu_read_kb_val = 0;
 
 always @(posedge CLK) begin
     if (~RST) begin
         kb_index <= 0;
         kb_val <= 0;
         temp_val <= 0;
+        cpu_read_kb_val <= 0;
     end
     else begin
         // PS/2 state machine
+
+        // CPU writes back an acknowledgment when it has received the current scancode
+        // CPLD will output 0 until a new scancode comes in
+        if (PS2EN * ~W) cpu_read_kb_val <= 1;
+        if (cpu_read_kb_val) kb_val <= 8'b0;
 
         if (~KB_CLK) begin
             // PS/2 clock line is active-low
@@ -105,7 +112,11 @@ always @(posedge CLK) begin
                         7: temp_val[6] <= KB_DATA;
                         8: temp_val[7] <= KB_DATA;
                         9:;
-                        10: kb_val <= temp_val;    // Parity bit, latch the complete scan code into the storage register
+                        10:
+                        begin
+                            kb_val <= temp_val;    // Parity bit, latch the complete scan code into the storage register
+                            cpu_read_kb_val <= 0;
+                        end
                     endcase
 
                     if (kb_index < 10)
@@ -125,10 +136,10 @@ always @(posedge CLK) begin
     end
 end
 
-// If the CPLD is selected on the address bus, output the last keyboard value on the data bus, else high-impedance
-assign DATA = PS2EN ? kb_val : 8'bZ;
+// If the CPLD is being read by the CPU, output the current PS/2 scancode on the data bus, else high-impedance
+assign DATA = (PS2EN * ~R) ? kb_val : 8'bZ;
 
-// CPLD's LEDs are addressable by the CPU
+// CPLD LEDs are addressable by the CPU
 always @(posedge CLK) begin
 	if (~RST) LED <= 3'b0;
 	else if (LEDEN) LED <= DATA[2:0];
