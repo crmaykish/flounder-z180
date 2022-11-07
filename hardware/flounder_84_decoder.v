@@ -56,16 +56,16 @@ assign LCDEN1 = ADDR[15] * ~ADDR[14] * ~ADDR[13] * ~IOREQ;
 // I/O 0xA000, active low
 assign USBEN = ~(ADDR[15] * ~ADDR[14] * ADDR[13] * ~IOREQ);
 
+// I/O 0xC000, active low
+assign USER[5] = ~(ADDR[15] * ADDR[14] * ~ADDR[13] * ~IOREQ);
+
 wire PS2EN = CPLDEN * ~ADDR[1] * ~ADDR[0];
 wire LEDEN = CPLDEN * ~ADDR[1] * ADDR[0];
-
 
 assign NMI = 1'bZ;
 assign INT = 3'bZ;
 
 assign WAIT = 1'bZ;
-
-assign USER = 8'b0;
 
 assign CLK_ASCI = CLK2;
 
@@ -124,7 +124,6 @@ always @(posedge CLK) begin
 
     end
 end
-
 
 // If the CPLD is selected on the address bus, output the last keyboard value on the data bus, else high-impedance
 assign DATA = PS2EN ? kb_val : 8'bZ;

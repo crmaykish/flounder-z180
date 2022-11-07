@@ -22,7 +22,7 @@ void z180_int_prt0() __critical __interrupt(0x04)
     uint8_t b = z180_inp(TMDR0L);
 
     counter++;
-    z180_outp(PORTA_DATA, counter);
+    z180_outp(CPLD_LED, counter);
 }
 
 void cpu_init(void)
@@ -33,13 +33,13 @@ void cpu_init(void)
     // Enable X2 clock multiplier (PHI runs at 2x oscillator)
     z180_outp(CMR, 0x80);
 
-    // Set 1 memory wait states and 2 I/O wait state
-    z180_outp(DCNTL, 0b01010000);
+    // Set 1 memory wait states and 3 I/O wait state
+    z180_outp(DCNTL, 0b01100000);
 
     // Set CPU mode to full Z80 compatibility
     z180_outp(OMCR, 0);
 
-    // Set ASCI 1 to use external clock source, 57600 baud at 1.8432/2 MHz
+    // Set ASCI 1 to use external clock source, 1/16th external clock, e.g. 1.8432 MHz => 115200 baud
     z180_outp(CNTLB1, 0b00000111);
 
     // Set Transmit and Receive Enable ON for ASCI 1, 8-bit, no parity, 1 stop bit
@@ -52,8 +52,8 @@ void cpu_init(void)
     // Disable external interrupts
     z180_outp(ITC, 0x00);
 
-    // Load timer 0 with 0x4000 starting value
-    z180_outp(RLDR0H, 0x40);
+    // Load timer 0 with 0xF000 starting value
+    z180_outp(RLDR0H, 0xF0);
     z180_outp(RLDR0L, 0x00);
 
     // Enable timer 0 interrupts and start timer 0 counting
@@ -66,7 +66,7 @@ char *parse_param(char *s, char delim, size_t n)
     while (s[i] != delim && i < n)
     {
         i++;
-    }
+    }1
 
     if (i == (n - 1))
     {
@@ -75,4 +75,3 @@ char *parse_param(char *s, char delim, size_t n)
 
     return s + i + 1;
 }
-

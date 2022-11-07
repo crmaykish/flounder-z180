@@ -134,6 +134,6 @@ char ps2_scan_code_to_ascii(unsigned char code)
 
 char ps2_get_char()
 {
-    char a = z180_inp(CPLD0);
+    char a = z180_inp(CPLD_PS2);
     return ps2_scan_code_to_ascii(a);
 }

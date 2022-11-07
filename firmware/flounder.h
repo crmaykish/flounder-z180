@@ -46,7 +46,8 @@
 #define PORTB_CMD 0x2003
 
 // CPLD
-#define CPLD0 0x4000
+#define CPLD_PS2 0x4000
+#define CPLD_LED 0x4001
 
 // Memory
 #define MEM(address) (*(volatile uint8_t *)(address))
