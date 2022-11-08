@@ -24,8 +24,6 @@ int main()
 
     while (true)
     {
-        // TODO: first command after reset is always bad, why?
-
         memset(buffer, 0, sizeof(buffer));
         c = 0;
         i = 0;
@@ -37,9 +35,12 @@ int main()
         while (c != '\r' && i < sizeof(buffer))
         {
             c = ps2_get_char();
-            lcd_putc(c);
-            buffer[i] = c;
-            i++;
+            if (c != 0)
+            {
+                lcd_putc(c);
+                buffer[i] = c;
+                i++;
+            }
         }
 
         lcd_print("\r\n");
