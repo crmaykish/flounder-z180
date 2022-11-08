@@ -12,6 +12,8 @@ MONITOR_SRC = monitor.c flounder.c asci.c lcd.c ps2.c run.asm
 
 HELLO_SRC = hello.c flounder.c asci.c lcd.c
 
+EEPROM_MODEL = SST39SF040
+
 .PHONY: all clean
 
 all: monitor hello
@@ -21,6 +23,9 @@ monitor: $(MONITOR_SRC)
 
 hello: $(HELLO_SRC)
 	$(CC) $(CFLAGS) -startup=-1 -o hello.bin $(HELLO_SRC)
+
+flash: monitor
+	minipro -S -p $(EEPROM_MODEL) -w monitor.bin
 
 clean:
 	@$(RM) *.bin *.rom *.def *.map monitor hello
