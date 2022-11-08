@@ -1,6 +1,6 @@
 # Flounder Z180 Computer
 
-![Flounder Z180 Computer](/media/flounder_rev1a.png)
+![Flounder Z180 Computer](/media/rev1a.jpg)
 
 Flounder is a standalone single-board computer built around the Zilog Z180 processor.
 
