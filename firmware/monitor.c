@@ -12,34 +12,44 @@ void load(uint16_t addr);
 
 int main()
 {
-    char buffer[32] = {0};
+    char buffer[32];
+    char c = 0;
+    uint8_t i = 0;
+    bool newline = true;
 
     cpu_init();
     lcd_init();
-
-    uart_print("\r\n");
-    uart_print("** ");
-    uart_print(SYSTEM_NAME);
-    uart_print(" System Monitor **\r\n");
 
     lcd_print("Flounder Z180\r\n");
 
     while (true)
     {
-        bool newline = true;
-
-        uart_print("\r\n> ");
-        lcd_print(">");
+        // TODO: first command after reset is always bad, why?
 
         memset(buffer, 0, sizeof(buffer));
+        c = 0;
+        i = 0;
+        newline = true;
 
-        uart_readline(buffer, true);
+        lcd_print("~");
 
-        uart_print("\r\n");
+        // Read characters from PS/2 keyboard
+        while (c != '\r' && i < sizeof(buffer))
+        {
+            c = ps2_get_char();
+            lcd_putc(c);
+            buffer[i] = c;
+            i++;
+        }
 
         lcd_print("\r\n");
 
-        if (strncmp(buffer, "dump", 4) == 0)
+        if (strncmp(buffer, "help", 4) == 0)
+        {
+            lcd_print("help peek poke ipeek ipoke dump clear");
+        }
+
+        else if (strncmp(buffer, "dump", 4) == 0)
         {
             char *param = parse_param(buffer, ' ', sizeof(buffer));
 
@@ -49,7 +59,7 @@ int main()
             }
 
             uint16_t addr = (uint16_t)strtoul(param, 0, 16);
-            memdump(addr, 256);
+            memdump(addr, 24);
         }
 
         else if (strncmp(buffer, "peek", 4) == 0)
@@ -62,8 +72,6 @@ int main()
             }
 
             uint16_t addr = (uint16_t)strtoul(param, 0, 16);
-
-            uart_print_hex(z180_bpeek(addr));
 
             lcd_print_hex(z180_bpeek(addr));
         }
@@ -82,9 +90,8 @@ int main()
             uint8_t val = (uint8_t)strtoul(param2, 0, 16);
 
             z180_bpoke(addr, val);
-            uart_print_hex(z180_bpeek(addr));
 
-            lcd_print_hex(z180_bpeek(addr));
+            newline = false;
         }
 
         else if (strncmp(buffer, "ipeek", 5) == 0)
@@ -98,7 +105,7 @@ int main()
 
             uint16_t addr = (uint16_t)strtoul(param, 0, 16);
 
-            uart_print_hex(z180_inp(addr));
+            lcd_print_hex(z180_inp(addr));
         }
 
         else if (strncmp(buffer, "ipoke", 5) == 0)
@@ -115,45 +122,40 @@ int main()
             uint8_t val = (uint8_t)strtoul(param2, 0, 16);
 
             z180_outp(addr, val);
+
+            newline = false;
         }
 
-        else if (strncmp(buffer, "load", 4) == 0)
-        {
-            char *param = parse_param(buffer, ' ', sizeof(buffer));
+        // else if (strncmp(buffer, "load", 4) == 0)
+        // {
+        //     char *param = parse_param(buffer, ' ', sizeof(buffer));
 
-            if (param == NULL)
-            {
-                break;
-            }
+        //     if (param == NULL)
+        //     {
+        //         break;
+        //     }
 
-            uint16_t addr = (uint16_t)strtoul(param, 0, 16);
+        //     uint16_t addr = (uint16_t)strtoul(param, 0, 16);
 
-            load(addr);
-        }
-        else if (strncmp(buffer, "run", 3) == 0)
-        {
-            uart_print("Jumping to 0xB000...\r\n");
-            run();
-        }
-        else if (strncmp(buffer, "cpld", 4) == 0)
-        {
-            uart_print("PS/2 keyboard test\r\n");
+        //     load(addr);
+        // }
 
-            while (true)
-            {
-                char a = ps2_get_char();
-                asci1_putc(a);
-            }
-        }
+        // else if (strncmp(buffer, "run", 3) == 0)
+        // {
+        //     lcd_print("Jumping to 0xB000...\r\n");
+        //     run();
+        // }
+
         else if (strncmp(buffer, "clear", 5) == 0)
         {
             lcd_clear();
             newline = false;
         }
+
         else
         {
-            uart_print("Command not implemented: ");
-            uart_print(buffer);
+            lcd_print("Bad command: ");
+            lcd_print(buffer);
         }
 
         if (newline)
@@ -165,58 +167,29 @@ int main()
     return 0;
 }
 
-void print_binary_string(char *str, uint8_t max)
-{
-    uint8_t i = 0;
-
-    while (i < max)
-    {
-        if (str[i] >= 32 && str[i] < 127)
-        {
-            asci1_putc(str[i]);
-        }
-        else
-        {
-            asci1_putc('.');
-        }
-
-        i++;
-    }
-}
-
 void memdump(uint16_t address, uint16_t bytes)
 {
     uint16_t i = 0;
     uint16_t b = 0;
 
-    uart_print_hex(address);
-    uart_print("  ");
+    lcd_print_hex(address);
+    lcd_print("  ");
 
     while (i < bytes)
     {
         b = MEM(address + i);
-        uart_print_hex(b);
-        uart_print(" ");
+        lcd_print_hex(b);
+        lcd_putc(' ');
 
         i++;
 
-        if (i % 16 == 0 && i < bytes)
+        if (i % 8 == 0 && i < bytes)
         {
-            uart_print(" |");
-            print_binary_string((char *)(address + i - 16), 16);
-            uart_print("|\r\n");
-            uart_print_hex(address + i);
-            uart_print("  ");
-        }
-        else if (i % 8 == 0)
-        {
-            uart_print(" ");
+            lcd_print("\r\n");
+            lcd_print_hex(address + i);
+            lcd_print("  ");
         }
     }
-
-    uart_print("|");
-    print_binary_string((char *)(address + i - 16), 16);
-    uart_print("|");
 }
 
 void load(uint16_t addr)
@@ -225,9 +198,9 @@ void load(uint16_t addr)
     uint8_t magic_count = 0;
     uint8_t in = 0;
 
-    uart_print("Loading into 0x");
-    uart_print_hex(addr);
-    uart_print("...");
+    lcd_print("Loading into 0x");
+    lcd_print_hex(addr);
+    lcd_print("...");
 
     while (magic_count != 3)
     {
@@ -250,6 +223,5 @@ void load(uint16_t addr)
     // Remove the magic bytes from the end of the firmware in RAM
     memset((uint16_t *)(addr + in_count - 3), 0, 3);
 
-    uart_print_dec(in_count - 3);
-    uart_print(" bytes read\r\nDone!");
+    lcd_print("Done!");
 }

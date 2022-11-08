@@ -3,7 +3,7 @@
 #include <z180.h>
 #include "flounder.h"
 
-static uint8_t counter = 0;
+static uint32_t counter = 0;
 
 void z180_int_asci0() __critical __interrupt(0x0E)
 {
@@ -22,7 +22,7 @@ void z180_int_prt0() __critical __interrupt(0x04)
     uint8_t b = z180_inp(TMDR0L);
 
     counter++;
-    z180_outp(CPLD_LED, counter);
+    // z180_outp(CPLD_LED, counter);
 }
 
 void cpu_init(void)
