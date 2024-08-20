@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "z180")(type "KiCad")(uri "${KIPRJMOD}/z180.pretty")(options "")(descr ""))
+)
